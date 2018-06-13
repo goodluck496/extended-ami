@@ -1,0 +1,24 @@
+{
+  "name": "extended-ami",
+  "version": "0.0.5",
+  "description": "Advanced manager for connecting to Asterisk",
+  "main": "app.ts",
+  "scripts": {
+    "build": "tsc",
+    "build-watch": "tsc --watch && nodemon ./dist/app.js"
+  },
+  "dependencies": {
+    "events": "^3.0.0",
+    "net": "^1.0.2",
+    "nodemon": "^1.17.5",
+    "typescript": "^2.9.1"
+  },
+  "keywords": [
+    "AMI",
+    "Asterisk",
+    "asterisk-manager",
+    "CRM-on-Asterisk"
+  ],
+  "author": "Kalinin Nikita",
+  "license": "MIT"
+}

@@ -1,5 +1,5 @@
 
-##Instalation
+## Instalation
 ````bash
 $ npm i extended-ami
 ````
@@ -10,9 +10,10 @@ support `>=6.13.1`
 ## Asterisk version
 
 support without types `>=1.8`
+
 support with types `>=12`
 
-##Usage
+## Usage
 ````typescript
 
 new eAmi( {
