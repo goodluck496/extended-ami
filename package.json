@@ -1,6 +1,6 @@
 {
   "name": "extended-ami",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "description": "Advanced manager for connecting to Asterisk",
   "main": "app.ts",
   "scripts": {
