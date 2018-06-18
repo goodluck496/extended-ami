@@ -5,7 +5,7 @@ export interface I_Status {
 	Channel: string                     //'SIP/mtt-out-00042248',
 	ChannelState: string                // 6
 	ChannelStateDesc: string            //'Up',
-	CallerIDNum: string                 // 89044902867
+	CallerIDNum: string                 // 8********67
 	CallerIDName: string                // null
 	ConnectedLineNum: string            // null
 	ConnectedLineName: string           // null
@@ -18,7 +18,7 @@ export interface I_Status {
 	Linkedid: string                    // 1527247624.556805',
 	Type: string                        //'SIP',
 	//Dialed number identifier
-	DNID: string                        // 2563057
+	DNID: string                        // 2****57
 	//Absolute lifetime of the channel
 	TimeToHangup: string                // 0
 	// Identifier of the bridge the channel is in, may be empty if not in one
@@ -43,6 +43,6 @@ export interface I_Status {
 	Pickupgroup: string                 // 0
 	//Number of seconds the channel has been active
 	Seconds: string                     // 51
-	Variable: string                    //'SIPURI=sip:79044902867@80.75.130.83:5060',
+	Variable: string                    //'SIPURI=sip:79*******67@80.**.**.83:5060',
 	ActionID: string                    //'--spec_1527247555970'
 }

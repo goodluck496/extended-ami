@@ -31,9 +31,9 @@ export interface I_BridgeEnter {
 		"Pre-ring" |
 		"Unknown" |
 		string        //'Up',
-	CallerIDNum: number             //null,          89169143353
+	CallerIDNum: number             //null,          89******353
 	CallerIDName: string            //null,
-	ConnectedLineNum: number        //89169143353,        null
+	ConnectedLineNum: number        //89*******53,        null
 	ConnectedLineName: string       //null,
 	Language: string                //'ru',
 	AccountCode: string             //'',
@@ -95,9 +95,9 @@ export interface I_BridgeLeave {
 		"Pre-ring" |
 		"Unknown" |
 		string        //'Up',
-	CallerIDNum: number             //null,          89169143353
+	CallerIDNum: number             //null,          891******53
 	CallerIDName: string            //null,
-	ConnectedLineNum: number        //89169143353,        null
+	ConnectedLineNum: number        //89******53,        null
 	ConnectedLineName: string       //null,
 	Language: string                //'ru',
 	AccountCode: string             //'',
@@ -181,9 +181,9 @@ export interface I_BridgeInfoChannel {
 		"Pre-ring" |
 		"Unknown" |
 		string        //'Up',
-	CallerIDNum: number             //null,          89169143353
+	CallerIDNum: number             //null,          89******353
 	CallerIDName: string            //null,
-	ConnectedLineNum: number        //89169143353,        null
+	ConnectedLineNum: number        //89******353,        null
 	ConnectedLineName: string       //null,
 	Language: string                //'ru',
 	AccountCode: string             //'',
