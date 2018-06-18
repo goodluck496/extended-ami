@@ -12,7 +12,7 @@ export interface I_NewChannel {
 	Language: string            //'en',
 	AccountCode: string         // null
 	Context: string             //'callcenter',
-	Exten: number               // 89*****4387
+	Exten: string               // 89*****4387
 	Priority: number            // 1
 	Uniqueid: number            // 1527247326.556790
 	Linkedid: number            // 1527247326.556790
@@ -32,7 +32,7 @@ export interface I_NewState {
 	Language: string            //'en',
 	AccountCode: string         // null
 	Context: string             //'callcenter',
-	Exten: number               // 89*****4387
+	Exten: string               // 89*****4387
 	Priority: number            // 1
 	Uniqueid: number            // 1527247326.556790
 	Linkedid: number            // 1527247326.556790
@@ -52,7 +52,7 @@ export interface I_NewConnectedLine {
 	Language: string            //'en',
 	AccountCode: string         // null
 	Context: string             //'callcenter',
-	Exten: number               // 89*****4387
+	Exten: string               // 89*****4387
 	Priority: number            // 1
 	Uniqueid: number            // 1527247326.556790
 	Linkedid: number            // 1527247326.556790
@@ -70,7 +70,7 @@ export interface I_NewExten {
 	ConnectedLineName: string   // null',
 	AccountCode: string         // null
 	Context: string             //'callcenter',
-	Exten: number               // 89*****4387
+	Exten: string               // 89*****4387
 	Priority: number            // 1
 	Uniqueid: number            // 1527247326.556790
 	Linkedid: number            // 1527247326.556790

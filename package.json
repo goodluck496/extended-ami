@@ -1,11 +1,12 @@
 {
   "name": "extended-ami",
-  "version": "0.0.5",
+  "version": "1.0.0",
   "description": "Advanced manager for connecting to Asterisk",
   "main": "app.ts",
   "scripts": {
     "build": "tsc",
-    "build-watch": "tsc --watch && nodemon ./dist/app.js"
+    "build-watch": "tsc --watch",
+    "build-watch-with-nodemon": "tsc --watch && nodemon ./dist/e-ami.js"
   },
   "dependencies": {
     "events": "^3.0.0",

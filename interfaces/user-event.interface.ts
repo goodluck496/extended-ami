@@ -12,7 +12,7 @@ export interface I_UserEvent {
 	ConnectedLineName: string
 	AccountCode: string
 	Context: string
-	Exten: number
+	Exten: string
 	Priority: number
 	Uniqueid: number
 	Linkedid: number

@@ -9,14 +9,17 @@ export interface I_Response {
 export interface I_Request {
 	//ActionID for this transaction. Will be returned.
 	ActionID?: number | string
-	Action: string
+	Action?: string
+	//Timestamp of start request
+	TimeStart?: number
+	Completed?: boolean
 
 	[field: string]: any
 }
 
 //Bridge two channels already in the PBX
 export interface I_ActionBridge {
-	Action: "Bridge"
+	Action?: "Bridge"
 	//ActionID for this transaction. Will be returned.
 	ActionID?: number | string
 	// Channel to Bridge to Channel2.
@@ -27,9 +30,18 @@ export interface I_ActionBridge {
 	Tone: "no" | "Channel1" | "Channel2" | "Both"
 }
 
+//Destroy a bridge.
+//Deletes the bridge, causing channels to continue or hang up.
+export interface I_ActionBridgeDestroy {
+	Action: "BridgeDestroy"
+	ActionID: number | string
+	//The unique ID of the bridge to destroy.
+	BridgeUniqueid: string
+}
+
 //Get information about a bridge
 export interface I_ActionBridgeInfo {
-	Action: "BridgeInfo"
+	Action?: "BridgeInfo"
 	//ActionID for this transaction. Will be returned.
 	ActionID?: number | string
 	//The unique ID of the bridge about which to retrieve information.
@@ -38,7 +50,7 @@ export interface I_ActionBridgeInfo {
 
 //Kick a channel from a bridge.
 export interface I_ActionBridgeKick {
-	Action: "BridgeKick"
+	Action?: "BridgeKick"
 	//ActionID for this transaction. Will be returned.
 	ActionID?: number | string
 	BridgeUniqueid?: string
@@ -47,26 +59,34 @@ export interface I_ActionBridgeKick {
 
 //Get a list of bridges in the system
 export interface I_ActionBridgeList {
-	Action: "BridgeList"
+	Action?: "BridgeList"
 	//ActionID for this transaction. Will be returned.
 	ActionID?: number | string
 	//Optional type for filtering the resulting list of bridges.
-	BridgeType: string
+	BridgeType?: string
+}
+
+//List currently active channels.
+//List currently defined channels and some information about them.
+export interface I_ActionCoreShowChannels {
+	Action?: "CoreShowChannels"
+	//ActionID for this transaction. Will be returned.
+	ActionID?: number | string
 }
 
 //Hangup channel.
 export interface I_ActionHangup {
-	Action: "Hangup"
+	Action?: "Hangup"
 	//ActionID for this transaction. Will be returned.
 	ActionID?: number | string
 	//The exact channel name to be hungup, or to use a regular expression, set this parameter to: /regex/
 	Channel: string
-	Cause: string
+	Cause?: string
 }
 
 //Login Manager
 export interface I_ActionLogin {
-	Action: "Login"
+	Action?: "Login"
 	//ActionID for this transaction. Will be returned.
 	ActionID?: number | string
 	//Username to login with as specified in manager.conf.
@@ -77,20 +97,20 @@ export interface I_ActionLogin {
 
 //Logoff the current manager session.
 export interface I_ActionLogout {
-	Action: "Logoff"
+	Action?: "Logoff"
 	//ActionID for this transaction. Will be returned.
 	ActionID?: number | string
 }
 
 //Generates an outgoing call to a Extension/Context/Priority or Application/Data
 export interface I_ActionOriginate {
-	Action: "Originate"
+	Action?: "Originate"
 	//ActionID for this transaction. Will be returned.
 	ActionID?: number | string
 	//Channel name to call
 	Channel: string
 	//Extension to use (requires Context and Priority)
-	Exten: number
+	Exten: string
 	//Context to use (requires Exten and Priority)
 	Context: string
 	//Priority to use (requires Exten and Context)
@@ -102,24 +122,24 @@ export interface I_ActionOriginate {
 	//How long to wait for call to be answered (in ms.).
 	Timeout: number
 	//Caller ID to be set on the outgoing channel.
-	CallerID: number
+	CallerID?: number
 	//Channel variable to set, multiple Variable: headers are allowed.
-	Variable: string
-	Account: string
+	Variable?: string
+	Account?: string
 	// Set to true to force call bridge on early media..
 	EarlyMedia?: boolean
 	//Set to true for fast origination.
 	Async?: boolean
 	//Comma-separated list of codecs to use for this call.
-	Codecs: string
+	Codecs?: string
 	//Channel UniqueId to be set on the channel.
-	ChannelId: string
+	ChannelId?: string
 	//Channel UniqueId to be set on the second local channel.
-	OtherChannelId: string
+	OtherChannelId?: string
 }
 
 export interface I_ActionPing {
-	Action: "Ping"
+	Action?: "Ping"
 	//ActionID for this transaction. Will be returned.
 	ActionID?: number | string
 }
@@ -127,7 +147,7 @@ export interface I_ActionPing {
 
 //Check the status of one or more queues.
 export interface I_ActionQueueStatus {
-	Action: "QueueStatus"
+	Action?: "QueueStatus"
 	//ActionID for this transaction. Will be returned.
 	ActionID?: number | string
 	//Limit the response to the status of the specified queue.
@@ -138,7 +158,7 @@ export interface I_ActionQueueStatus {
 
 //Request the manager to send a QueueSummary event.
 export interface I_ActionQueueSummary {
-	Action: "QueueSummary"
+	Action?: "QueueSummary"
 	//ActionID for this transaction. Will be returned.
 	ActionID?: number | string
 	//Queue for which the summary is requested.
@@ -147,7 +167,7 @@ export interface I_ActionQueueSummary {
 
 //Add interface to queue.
 export interface I_ActionQueueAdd {
-	Action: "QueueAdd"
+	Action?: "QueueAdd"
 	//ActionID for this transaction. Will be returned.
 	ActionID?: number | string
 	Queue: string
@@ -165,7 +185,7 @@ export interface I_ActionQueueAdd {
 
 //Remove interface from queue.
 export interface I_ActionQueueRemove {
-	Action: "QueueRemove"
+	Action?: "QueueRemove"
 	//ActionID for this transaction. Will be returned.
 	ActionID?: number | string
 	//The name of the queue to take action on.
@@ -174,15 +194,32 @@ export interface I_ActionQueueRemove {
 	Interface: string
 }
 
+// Set the penalty for a queue member.
+// Change the penalty of a queue member
+export interface I_ActionQueuePenalty {
+	Action?: "QueuePenalty"
+	//ActionID for this transaction. Will be returned.
+	ActionID?: number | string
+	//The interface (tech/name) of the member whose penalty to change.
+	Interface: string
+	//The new penalty (number) for the member. Must be nonnegative.
+	Penalty: number
+	//If specified, only set the penalty for the member of this queue.
+	// Otherwise, set the penalty for the member in all queues to which the member belongs.
+	Queue: string
+
+}
+
+
 //Show queues information.
 export interface I_ActionQueues {
-	Action: "Queues"
+	Action?: "Queues"
 }
 
 //Makes a queue member temporarily unavailable.
 //Pause or unpause a member in a queue.
 export interface I_ActionQueuePause {
-	Action: "QueuePause"
+	Action?: "QueuePause"
 	//ActionID for this transaction. Will be returned.
 	ActionID?: number | string
 	//The name of the interface (tech/name) to pause or unpause.
@@ -200,7 +237,7 @@ export interface I_ActionQueuePause {
 //Lists SIP peers in text format with details on current status.
 // Peerlist will follow as separate events, followed by a final event called PeerlistComplete.
 export interface I_ActionSIPpeers {
-	Action: "SIPpeers"
+	Action?: "SIPpeers"
 	//ActionID for this transaction. Will be returned.
 	ActionID?: number | string
 }
@@ -208,7 +245,7 @@ export interface I_ActionSIPpeers {
 //Show the status of one or all of the sip peers.
 //Retrieves the status of one or all of the sip peers. If no peer name is specified, status for all of the sip peers will be retrieved.
 export interface I_ActonSIPpeerstatus {
-	Action: "SIPpeerstatus"
+	Action?: "SIPpeerstatus"
 	//ActionID for this transaction. Will be returned.
 	ActionID?: number | string
 	//The peer name you want to check.
@@ -218,7 +255,7 @@ export interface I_ActonSIPpeerstatus {
 //show SIP peer (text format).
 //Show one SIP peer with details on current status.
 export interface I_ActionSIPshowpeer {
-	Action: "SIPpeerstatus"
+	Action?: "SIPpeerstatus"
 	//ActionID for this transaction. Will be returned.
 	ActionID?: number | string
 	//The peer name you want to check.
@@ -229,7 +266,7 @@ export interface I_ActionSIPshowpeer {
 //Lists all registration requests and status. Registrations will follow as separate events
 // followed by a final event called RegistrationsComplete.
 export interface I_ActionSIPshowregistry {
-	Action: "SIPshowregistry"
+	Action?: "SIPshowregistry"
 	//ActionID for this transaction. Will be returned.
 	ActionID?: number | string
 }
@@ -237,7 +274,7 @@ export interface I_ActionSIPshowregistry {
 //List channel status.
 //Will return the status information of each channel along with the value for the specified channel variables.
 export interface I_ActionStatus {
-	Action: "Status"
+	Action?: "Status"
 	//ActionID for this transaction. Will be returned.
 	ActionID?: number | string
 	//The name of the channel to query for status.
@@ -251,7 +288,7 @@ export interface I_ActionStatus {
 //Send an arbitrary event.
 //Send an event to manager sessions.
 export interface I_ActionUserEvent {
-	Action: "UserEvent"
+	Action?: "UserEvent"
 	//ActionID for this transaction. Will be returned.
 	ActionID?: number | string
 	// Event string to send.
@@ -265,7 +302,7 @@ export interface I_ActionUserEvent {
 //This action will ellicit a Success response. Whenever a manager event is queued.
 // Once WaitEvent has been called on an HTTP manager session, events will be generated and queued.
 export interface I_ActionWaitEvent {
-	Action: "waitEvent"
+	Action?: "waitEvent"
 	//ActionID for this transaction. Will be returned.
 	ActionID?: number | string
 	//Maximum time (in seconds) to wait for events, -1 means forever.

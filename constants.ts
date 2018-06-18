@@ -8,8 +8,12 @@ export enum AMI_EVENTS {
 	BRIDGE_LEAVE = "BridgeLeave",
 	BRIDGE_MERGE = "BridgeMerge",
 	BRIDGE_LIST_ITEM = "BridgeListItem",
+	BRIDGE_LIST_COMPLETE = "BridgeListComplete",
 
 	CEL = "CEL",
+
+	CORE_SHOW_CHANNEL = "CoreShowChannel",
+	CORE_SHOW_CHANNEL_COMPLETE = "CoreShowChannelsComplete",
 
 	DIAL1 = "DialBegin",
 	DIAL2 = "DialEnd",
@@ -35,6 +39,7 @@ export enum AMI_EVENTS {
 	Q_MEMBER_ADDED = "QueueMemberAdded",
 	Q_MEMBER_PAUSE = "QueueMemberPause",
 	Q_MEMBER_REMOVED = "QueueMemberRemoved",
+	Q_MEMBER_PENALTY = "QueuePenalty",
 	Q_MEMBER_RING_IN_USE = "QueueMemberRinginuse",
 	Q_MEMBER = "QueueMember",
 	Q_MEMBER_STATUS = "QueueMemberStatus",
@@ -45,9 +50,11 @@ export enum AMI_EVENTS {
 	STATUS = "Status",
 }
 
-export const CRLF = "\r\n";
-export const END = "\r\n\r\n";
-export const TIMEOUT_FOR_SEND = 3;
-export const HEARTBEAT_TIMEOUT = 1;
-export const HEARTBEAT_INTERVAL = 1;
-export const TIMEOUT_TO_DEFIBRILLATION = 5;
+export const DEFAULT_PORT: number = 5038;
+export const CRLF: string = "\r\n";
+export const END: string = "\r\n\r\n";
+export const TIMEOUT_FOR_SEND: number = 3;
+export const HEARTBEAT_TIMEOUT: number = 1;
+export const HEARTBEAT_INTERVAL: number = 1;
+export const TIMEOUT_TO_DEFIBRILLATION: number = 5;
+export const MAX_RECONNECT_COUNT: number = 10;

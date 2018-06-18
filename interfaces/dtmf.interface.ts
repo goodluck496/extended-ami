@@ -9,7 +9,7 @@ export interface I_DTMFBegin {
 	ConnectedLineName: string
 	AccountCode: string
 	Context: string
-	Exten: number
+	Exten: string
 	Priority: number
 	Uniqueid: number
 	Linkedid: number
@@ -28,7 +28,7 @@ export interface I_DTMFEnd {
 	ConnectedLineName: string
 	AccountCode: string
 	Context: string
-	Exten: number
+	Exten: string
 	Priority: number
 	Uniqueid: number
 	Linkedid: number

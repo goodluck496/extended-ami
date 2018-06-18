@@ -10,7 +10,7 @@ export interface I_DialBegin {
 	Language: string                //'en'
 	AccountCode: string             // null
 	Context: string                 // 'callcenter'
-	Exten: number                   // 1877
+	Exten: string                   // 1877
 	Priority: number                // 3
 	Uniqueid: number                // 1528262325.580184
 	Linkedid: number                // 1528262325.580183
@@ -25,7 +25,7 @@ export interface I_DialBegin {
 	DestLanguage: string            //'en'
 	DestAccountCode: string         // null
 	DestContext: string             //'callcenter'
-	DestExten: number               // 1877
+	DestExten: string               // 1877
 	DestPriority: number            // 1
 	DestUniqueid: number            // 1528262348.580187
 	DestLinkedid: number            // 1528262325.580183'
@@ -43,7 +43,7 @@ export interface I_DialEnd {
 	Language: string                //'en'
 	AccountCode: string             // null
 	Context: string                 // 'callcenter'
-	Exten: number                   // 1877
+	Exten: string                   // 1877
 	Priority: number                // 3
 	Uniqueid: number                // 1528262325.580184
 	Linkedid: number                // 1528262325.580183
@@ -58,7 +58,7 @@ export interface I_DialEnd {
 	DestLanguage: string            //'en'
 	DestAccountCode: string         // null
 	DestContext: string             //'callcenter'
-	DestExten: number               // 1877
+	DestExten: string               // 1877
 	DestPriority: number            // 1
 	DestUniqueid: number            // 1528262348.580187
 	DestLinkedid: number            // 1528262325.580183'
@@ -76,7 +76,7 @@ export interface I_DialState {
 	Language: string                //'en'
 	AccountCode: string             // null
 	Context: string                 // 'callcenter'
-	Exten: number                   // 1877
+	Exten: string                   // 1877
 	Priority: number                // 3
 	Uniqueid: number                // 1528262325.580184
 	Linkedid: number                // 1528262325.580183
@@ -91,7 +91,7 @@ export interface I_DialState {
 	DestLanguage: string            //'en'
 	DestAccountCode: string         // null
 	DestContext: string             //'callcenter'
-	DestExten: number               // 1877
+	DestExten: string               // 1877
 	DestPriority: number            // 1
 	DestUniqueid: number            // 1528262348.580187
 	DestLinkedid: number            // 1528262325.580183'

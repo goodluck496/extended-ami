@@ -4,7 +4,7 @@ export interface I_OriginateResponse {
 	Response: string
 	Channel: string
 	Context: string
-	Exten: number
+	Exten: string
 	Application: string
 	Data: string
 	Reason: string

@@ -40,6 +40,55 @@ export interface I_QueueMember {
 	Ringinuse: 0 | 1
 }
 
+//Raised when a member is added to the queue.
+export interface I_QueueMemberAdded {
+	Event: "QueueMemberAdded"
+	Queue: string
+	MemberName: string
+	Interface: string
+	StateInterface: string
+	Membership: "dynamic" | "realtime" | "static" | string
+	Penalty: number
+	CallsTaken: number
+	LastCall: number
+	Status: number
+	Paused: boolean
+	Ringinuse: 0 | 1
+}
+
+//Raised when a member is removed from the queue.
+export interface I_QueueMemberRemoved {
+	Event: "QueueMemberRemoved"
+	Queue: string
+	MemberName: string
+	Interface: string
+	StateInterface: string
+	Membership: "dynamic" | "realtime" | "static" | string
+	Penalty: number
+	CallsTaken: number
+	LastCall: number
+	Status: number
+	Paused: boolean
+	Ringinuse: 0 | 1
+}
+
+//Raised when a member's penalty is changed.
+export interface I_QueueMemberPenalty {
+	Event: "QueueMemberPenalty"
+	Queue: string
+	MemberName: string
+	Interface: string
+	StateInterface: string
+	Membership: "dynamic" | "realtime" | "static" | string
+	Penalty: number
+	CallsTaken: number
+	LastCall: number
+	Status: number
+	Paused: boolean
+	Ringinuse: 0 | 1
+}
+
+
 //Raised when a Queue member's status has changed.
 export interface I_QueueMemberStatus {
 	Event: string
@@ -126,7 +175,10 @@ export interface I_QueueMemberPause {
 
 //Response by QueueSummary action
 export interface I_QueueSummary {
-	available: number
-	callers: number
-	loggedIn: number
+	Available: number
+	Callers: number
+	HoldTime: number
+	TalkTime: number
+	LoggedIn: number
+	LongestHoldTime: number
 }

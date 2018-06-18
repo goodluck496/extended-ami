@@ -196,3 +196,22 @@ export interface I_BridgeInfoChannel {
 }
 
 
+export interface I_BridgeListComplete {
+	Event: string						// BridgeListComplete
+	ActionID: string | number,			// 1528887557034
+	EventList: 'Complete' | string,  	// Complete
+	ListItems: number					// 2
+}
+
+export interface I_BridgeListItem {
+	Event: string 					//'BridgeListItem',
+	ActionID: string | number 		//'1528887557034',
+	BridgeUniqueid: string 			//'13c53335-7c92-41e0-86f5-923c71fae6ad',
+	BridgeType: string 				// 'basic',
+	BridgeTechnology: string 		//'simple_bridge',
+	BridgeCreator: string 			//null,
+	BridgeName: string 				//null,
+	BridgeNumChannels: number 		//2,
+	BridgeVideoSourceMode: string 	//'none',
+}
+
