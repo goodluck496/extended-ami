@@ -20,6 +20,10 @@
     "asterisk-manager",
     "CRM-on-Asterisk"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/goodluck496/extended-ami"
+  },
   "author": "Kalinin Nikita",
   "license": "MIT"
 }
