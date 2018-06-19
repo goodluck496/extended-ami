@@ -4,7 +4,7 @@ export interface connectionOptions {
 	userName: string
 	password: string
 
-	additionalOptions: IAddinionalOptions
+	additionalOptions?: IAddinionalOptions
 }
 export interface IAddinionalOptions {
 

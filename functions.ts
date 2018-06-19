@@ -1,48 +1,47 @@
-export function isUndefined( value: any ): boolean {
+export function _isUndefined( value: any ): boolean {
 	return value === undefined;
 }
 
-
-export function isNull( value: any ): boolean {
+export function _isNull( value: any ): boolean {
 	return value === null;
 }
 
-export function isEmpty( value: any ): boolean {
+export function _isEmpty( value: any ): boolean {
 
-	if( isNull( value ) ) return true;
-	if( isUndefined( value ) ) return true;
-	if( isUndefined( value.length ) ) return true;
+	if( _isNull( value ) ) return true;
+	if( _isUndefined( value ) ) return true;
+	if( _isUndefined( value.length ) ) return true;
 	else if( value.length == 0 ) return true;
 
 	return false;
 }
 
-export function isNaN( value: any ) {
-	return isNumber( value ) && value != +value;
+export function _isNaN( value: any ): boolean {
+	return _isNumber( value ) && value != +value;
 }
 
-export function isNumber( value: any ): boolean {
+export function _isNumber( value: any ): boolean {
 	return typeof  +value === "number";
 }
 
-export function toNumber( value: any ): number {
+export function _toNumber( value: any ): number {
 
-	if( isNull( value ) ) return null;
-	if( isUndefined( value ) ) return null;
-	if( isNaN( value ) ) return null;
+	if( _isNull( value ) ) return null;
+	if( _isUndefined( value ) ) return null;
+	if( _isNaN( value ) ) return null;
 
-	return ( isNumber( value ) ) ? +value : null;
+	return ( _isNumber( value ) ) ? +value : null;
 }
 
-export function isFinite( value: number ): boolean {
-	if( isUndefined( value ) ) return false;
-	if( isNull( value ) ) return false;
-	if( isNaN( value ) ) return false;
+export function _isFinite( value: number ): boolean {
+	if( _isUndefined( value ) ) return false;
+	if( _isNull( value ) ) return false;
+	if( _isNaN( value ) ) return false;
 
-	if( isNumber( value ) ) return true;
+	if( _isNumber( value ) ) return true;
 }
 
-export function indexOfArray( array: any[], value: any ): number {
+export function _indexOfArray( array: any[], value: any ): number {
 
 	for( let i = 0; i < array.length; i++ ) {
 

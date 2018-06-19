@@ -66,6 +66,8 @@ Additional options
 ## Usage
 ````typescript
 
+import {eAmi, eAmiActions} from "extended-ami";
+
 new eAmi( {
 	host: 'localhost',
 	port: 5038,

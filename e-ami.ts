@@ -8,14 +8,16 @@
 
 import { Socket } from "net";
 import { EventEmitter } from "events";
-import { indexOfArray, isEmpty, isFinite, isNull, isUndefined, toNumber } from "./functions";
+import { _indexOfArray, _isEmpty, _isFinite, _isNull, _isUndefined, _toNumber } from "./functions";
 import { connectionOptions } from "./interfaces/configure.interface";
 import { I_Request, I_Response, } from "./interfaces/actions.interface";
 import {
-	CRLF, DEFAULT_PORT,
+	CRLF,
+	DEFAULT_PORT,
 	END,
 	HEARTBEAT_INTERVAL,
-	HEARTBEAT_TIMEOUT, MAX_RECONNECT_COUNT,
+	HEARTBEAT_TIMEOUT,
+	MAX_RECONNECT_COUNT,
 	TIMEOUT_FOR_SEND,
 	TIMEOUT_TO_DEFIBRILLATION,
 } from "./constants";
@@ -25,69 +27,64 @@ import { eAmiActions } from "./e-ami-actions";
 export class eAmi {
 	public debug: boolean;
 
-	private _isLoggedIn: boolean;
-	private _lastConnectedTime: number;
-
 	private _host: string;
 	private _port: number;
 	private _userName: string;
 	private _password: string;
 
+	private _isLoggedIn: boolean;
 	private _emitAllEvents: boolean;
-	private _maxReconnectCount: number;
 	private _reconnect: boolean;
+	private _resendAction: boolean;
+	private _heartbeatOk: boolean;
+
+	private _lastConnectedTime: number;
+	private _maxReconnectCount: number;
 	private _heartbeatInterval: number;
 	private _timeOutSend: number;
 	private _timeOutToDefibrillation: number;
-	private _resendAction: boolean;
-
-	private _heartbeatOk: boolean;
-
 	private _heartbeatHandler: number;
 	private _heartbeatTimeout: number;
-
 	private _countPreDefibrillation: number;
 	private _countReconnect: number;
 
-	private _socketHandler: Socket;
 	private _excludeEvents: string[];
 
 	private _queueRequest: I_Request[];
-
-	public _actions: eAmiActions;
-
+	private _socketHandler: Socket;
+	private _actions: eAmiActions;
 	private _events: EventEmitter;
 
 	constructor( allOptions: connectionOptions ) {
 
 		let connect = allOptions,
-			options = connect.additionalOptions;
+			options = _isUndefined( connect.additionalOptions ) ? {} : connect.additionalOptions;
 
 		this._host = connect.host;
-		this._port =  isNull(connect.port) ? DEFAULT_PORT : connect.port;
+		this._port = _isNull( connect.port ) ? DEFAULT_PORT : connect.port;
 		this._userName = connect.userName;
 		this._password = connect.password;
 
-		this._reconnect = isUndefined( options.reconnect ) ? true : options.reconnect;
+		this._reconnect = _isUndefined( options.reconnect ) ? true : options.reconnect;
 
-		this._heartbeatInterval = isUndefined( options.heartbeatInterval ) ? HEARTBEAT_INTERVAL * 1000 : options.heartbeatInterval * 1000;
+		this._heartbeatInterval = _isUndefined( options.heartbeatInterval ) ? HEARTBEAT_INTERVAL * 1000 : options.heartbeatInterval * 1000;
 
-		this.excludeEvents = isUndefined( options.excludeEvents ) || isEmpty( options.excludeEvents ) ? [] : options.excludeEvents;
+		this.excludeEvents = _isUndefined( options.excludeEvents ) || _isEmpty( options.excludeEvents ) ? [] : options.excludeEvents;
 
-		this._timeOutSend = isUndefined( options.timeOutSend ) ? TIMEOUT_FOR_SEND : options.timeOutSend;
+		this._timeOutSend = _isUndefined( options.timeOutSend ) ? TIMEOUT_FOR_SEND : options.timeOutSend;
 
-		this._resendAction = isUndefined( options.resendAction ) ? false : options.resendAction;
+		this._resendAction = _isUndefined( options.resendAction ) ? false : options.resendAction;
 
-		this._emitAllEvents = isUndefined( options.emitAllEvents ) ? false : options.emitAllEvents;
+		this._emitAllEvents = _isUndefined( options.emitAllEvents ) ? false : options.emitAllEvents;
 
-		this.debug = isUndefined( options.debug ) ? false : options.debug;
+		this.debug = _isUndefined( options.debug ) ? false : options.debug;
 
-		this._timeOutToDefibrillation = isUndefined( options.timeOutToDefibrillation ) ?
+		this._timeOutToDefibrillation = _isUndefined( options.timeOutToDefibrillation ) ?
 			TIMEOUT_TO_DEFIBRILLATION : options.timeOutToDefibrillation;
 
 		this._heartbeatTimeout = HEARTBEAT_TIMEOUT;
 
-		this._maxReconnectCount = isUndefined(options.maxReconnectCount) ? MAX_RECONNECT_COUNT : options.maxReconnectCount;
+		this._maxReconnectCount = _isUndefined( options.maxReconnectCount ) ? MAX_RECONNECT_COUNT : options.maxReconnectCount;
 
 		this._countPreDefibrillation = 0;
 		this._countReconnect = 0;
@@ -118,15 +115,15 @@ export class eAmi {
 		return this._lastConnectedTime;
 	}
 
-	get actions(){
+	get actions() {
 		return this._actions;
 	}
 
-	get events(){
+	get events() {
 		return this._events;
 	}
 
-	get queueRequest(){
+	get queueRequest() {
 		return this._queueRequest;
 	}
 
@@ -142,23 +139,14 @@ export class eAmi {
 		if( this.debug ) console.log( CRLF + "Socket connection destroyed" );
 	}
 
-	/**
-	 *
-	 * @param {I_Request} request
-	 */
 	private addRequest( request: I_Request ): void {
 		this.queueRequest.push( request );
 	}
 
-	/**
-	 *
-	 * @param actionID
-	 * @returns {boolean}
-	 */
 	removeRequest( actionID: any ): boolean {
-		if(isUndefined(actionID)) return false;
+		if( _isUndefined( actionID ) ) return false;
 
-		let index: number = indexOfArray( this.queueRequest, actionID );
+		let index: number = _indexOfArray( this.queueRequest, actionID );
 
 		if( index < 0 ) return false;
 		try {
@@ -171,15 +159,10 @@ export class eAmi {
 
 	}
 
-	/**
-	 *
-	 * @param actionID
-	 * @returns {I_Request | boolean}
-	 */
 	getRequest( actionID: any ): I_Request | boolean {
-		if(isUndefined(actionID)) return false;
+		if( _isUndefined( actionID ) ) return false;
 
-		let index: number = indexOfArray( this.queueRequest, actionID );
+		let index: number = _indexOfArray( this.queueRequest, actionID );
 
 		if( index < 0 ) return false;
 
@@ -187,11 +170,6 @@ export class eAmi {
 
 	}
 
-	/**
-	 *
-	 * @param actionID
-	 * @param {I_Request} newRequest
-	 */
 	private setRequest( actionID: any, newRequest: I_Request ): void {
 		let request = this.getRequest( actionID );
 
@@ -200,10 +178,6 @@ export class eAmi {
 		request = newRequest;
 	}
 
-	/**
-	 *
-	 * @returns {Promise<boolean>}
-	 */
 	private keepConnection(): Promise<boolean> {
 		return new Promise( async ( resolve, reject ) => {
 
@@ -270,10 +244,6 @@ export class eAmi {
 		} );
 	}
 
-	/**
-	 *
-	 * @returns {Promise<boolean>}
-	 */
 	private login(): Promise<boolean> {
 		return new Promise( async ( resolve, reject ) => {
 			try {
@@ -290,10 +260,6 @@ export class eAmi {
 		} );
 	}
 
-	/**
-	 *
-	 * @returns {Promise<boolean>}
-	 */
 	private logout(): Promise<boolean> {
 		return new Promise( async ( resolve, reject ) => {
 			try {
@@ -307,10 +273,6 @@ export class eAmi {
 		} );
 	}
 
-	/**
-	 *
-	 * @returns {Promise<this | boolean>} false - only error
-	 */
 	public connect(): Promise<this | boolean> {
 		return new Promise( ( resolve, reject ) => {
 
@@ -323,7 +285,7 @@ export class eAmi {
 
 					try {
 
-						if( this.debug ) console.log( "connection to the server");
+						if( this.debug ) console.log( "connection to the server" );
 						await this.login();
 
 						this._isLoggedIn = true;
@@ -352,13 +314,9 @@ export class eAmi {
 		} );
 	}
 
-	/**
-	 *
-	 * @returns {Promise<boolean>}
-	 */
 	public reconnect(): Promise<boolean> {
 		if( !this._reconnect ) return;
-		if( this._countReconnect < this._maxReconnectCount) this._countReconnect++;
+		if( this._countReconnect < this._maxReconnectCount ) this._countReconnect++;
 		else throw "Maximum number of reconnections reached";
 
 		return new Promise( async ( resolve, reject ) => {
@@ -380,11 +338,6 @@ export class eAmi {
 		} );
 	}
 
-	/**
-	 *
-	 * @param {T} request ** {T} = I_Action<SomeAction>
-	 * @returns {Promise<boolean | T>} false - timeOut or error
-	 */
 	public action<T>( request: T ): Promise<T | boolean> {
 		return new Promise( ( resolve, reject ) => {
 
@@ -395,7 +348,7 @@ export class eAmi {
 				message += key + ": " + request[ key ] + CRLF;
 			}
 
-			if( isUndefined( request[ "ActionID" ] ) ) request[ "ActionID" ] = new Date().getTime();
+			if( _isUndefined( request[ "ActionID" ] ) ) request[ "ActionID" ] = new Date().getTime();
 
 			message += "ActionID: " + request[ "ActionID" ] + CRLF + CRLF;
 
@@ -434,11 +387,6 @@ export class eAmi {
 		} );
 	}
 
-	/**
-	 *
-	 * @param {Buffer} buffer
-	 * @returns {I_Response}
-	 */
 	private getData( buffer: BufferSource ): I_Response {
 
 		let dataStr: string = buffer.toString(),
@@ -473,11 +421,11 @@ export class eAmi {
 					continue;
 				}
 
-				if( isFinite( toNumber( value ) ) )
-					value = toNumber( value );
+				if( _isFinite( _toNumber( value ) ) )
+					value = _toNumber( value );
 				else if( value.indexOf( "unknown" ) >= 0 )
 					value = null;
-				else if( isEmpty( value ) )
+				else if( _isEmpty( value ) )
 					value = null;
 				else if( value.toLowerCase().indexOf( "s" ) === 0 && value.toString().length === 1 )
 					value = null;
@@ -489,7 +437,7 @@ export class eAmi {
 			let request = this.getRequest( dataObject.ActionID );
 			dataObject.Request = typeof request !== "boolean" ? request : null;
 
-			if( isFinite( toNumber( dataObject.ActionID ) ) )
+			if( _isFinite( _toNumber( dataObject.ActionID ) ) )
 				this.events.emit( "Action_" + dataObject.ActionID, dataObject );
 			else if( typeof dataObject.ActionID == "string" )
 				this.events.emit( dataObject.ActionID, dataObject );
@@ -498,13 +446,13 @@ export class eAmi {
 
 			switch( typeResponse ) {
 				case "response":
-					if( this.debug ) console.log( "response", CRLF + dataObject, CRLF  );
+					if( this.debug ) console.log( "response", CRLF + dataObject, CRLF );
 
 					this.events.emit( "response", dataObject );
 
 					break;
 				case "event" :
-					if( this.debug ) console.log("event", CRLF + dataObject, CRLF );
+					if( this.debug ) console.log( "event", CRLF + dataObject, CRLF );
 
 					if( this.excludeEvents.indexOf( dataObject.Event ) < 0 ) {
 

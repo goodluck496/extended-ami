@@ -1,8 +1,17 @@
 {
   "name": "extended-ami",
-  "version": "1.0.2",
   "description": "Advanced manager for connecting to Asterisk",
-  "main": "app.ts",
+  "author": "Kalinin Nikita",
+  "license": "MIT",
+  "version": "1.0.8",
+  "main": "./dist/e-ami.js",
+  "typings": "./e-ami.d.ts",
+  "engines": {
+    "node": ">=6.13.1"
+  },
+  "directories": {
+    "dist": "./dist"
+  },
   "scripts": {
     "build": "tsc",
     "build-watch": "tsc --watch",
@@ -22,7 +31,5 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/goodluck496/extended-ami"
-  },
-  "author": "Kalinin Nikita",
-  "license": "MIT"
+  }
 }

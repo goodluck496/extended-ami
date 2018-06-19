@@ -18,7 +18,7 @@ import {
 } from "./interfaces/actions.interface";
 import { AMI_EVENTS } from "./constants";
 import { I_Status } from "./interfaces/status.interface";
-import { isNull, isUndefined } from "./functions";
+import { _isNull, _isUndefined } from "./functions";
 import {
 	I_QueueMember,
 	I_QueueMemberAdded,
@@ -40,12 +40,6 @@ export class eAmiActions {
 		this.eAmi = eAmi;
 	}
 
-	/**
-	 *
-	 * @param {I_ActionBridgeInfo} options
-	 * @returns {Promise<I_BridgeInfoChannel>}
-	 * @constructor
-	 */
 	public BridgeInfo( options: I_ActionBridgeInfo ): Promise<I_BridgeInfoChannel> {
 		return new Promise( async ( resolve, reject ) => {
 
@@ -67,15 +61,9 @@ export class eAmiActions {
 		} );
 	}
 
-	/**
-	 *
-	 * @param {I_ActionBridgeList} options
-	 * @returns {Promise<I_BridgeListItem[]>}
-	 * @constructor
-	 */
 	public BridgeList( options: I_ActionBridgeList ): Promise<I_BridgeListItem[]> {
 		return new Promise( async ( resolve, reject ) => {
-			if( isUndefined( options ) ) reject( false );
+			if( _isUndefined( options ) ) reject( false );
 
 			options.Action = "BridgeList";
 			options.ActionID = new Date().getTime();
@@ -107,15 +95,9 @@ export class eAmiActions {
 		} );
 	}
 
-	/**
-	 *
-	 * @param {I_ActionCoreShowChannels} options
-	 * @returns {Promise<I_CoreShowChannel[]>}
-	 * @constructor
-	 */
 	public CoreShowChannels( options: I_ActionCoreShowChannels ): Promise<I_CoreShowChannel[]> {
 		return new Promise( async ( resolve, reject ) => {
-			if( isUndefined( options ) ) reject( false );
+			if( _isUndefined( options ) ) reject( false );
 
 			options.Action = "CoreShowChannels";
 
@@ -145,15 +127,9 @@ export class eAmiActions {
 		} );
 	}
 
-	/**
-	 *
-	 * @param {I_ActionHangup} options
-	 * @returns {Promise<I_DualHangup>}
-	 * @constructor
-	 */
 	public Hangup( options: I_ActionHangup ): Promise<I_DualHangup> {
 		return new Promise( async ( resolve, reject ) => {
-			if( isUndefined( options ) ) reject( false );
+			if( _isUndefined( options ) ) reject( false );
 
 			options.Action = "Hangup";
 
@@ -161,12 +137,12 @@ export class eAmiActions {
 
 			this.eAmi.events.once( AMI_EVENTS.HANGUP, ( h: I_Hangup ) => {
 				hangup.hangup = h;
-				if( !isNull( hangup.hangupRequest ) ) resolve( hangup );
+				if( !_isNull( hangup.hangupRequest ) ) resolve( hangup );
 			} );
 
 			this.eAmi.events.once( AMI_EVENTS.HANGUP_REQUEST, ( hr: I_HangupRequest ) => {
 				hangup.hangupRequest = hr;
-				if( !isNull( hangup.hangup ) ) resolve( hangup );
+				if( !_isNull( hangup.hangup ) ) resolve( hangup );
 			} );
 
 			try {
@@ -179,22 +155,16 @@ export class eAmiActions {
 		} );
 	}
 
-	/**
-	 *
-	 * @param {I_ActionLogin} options
-	 * @returns {Promise<boolean>}
-	 * @constructor
-	 */
 	public Login( options: I_ActionLogin ): Promise<boolean> {
 		return new Promise( async ( resolve, reject ) => {
-			if( isUndefined( options ) ) reject( false );
+			if( _isUndefined( options ) ) reject( false );
 
 			options.Action = "Login";
 			options.ActionID = new Date().getTime();
 
 
 			this.eAmi.events.once( `Action_${options.ActionID}`, ( response ) => {
-				if( isUndefined( response.Response ) ) reject( false );
+				if( _isUndefined( response.Response ) ) reject( false );
 				if( response.Response == "Success" ) resolve( true );
 				else reject( false );
 			} );
@@ -210,17 +180,12 @@ export class eAmiActions {
 		} );
 	}
 
-	/**
-	 *
-	 * @returns {Promise<boolean>}
-	 * @constructor
-	 */
 	public Logout(): Promise<boolean> {
 		return new Promise( async ( resolve, reject ) => {
 			let actionId = new Date().getTime();
 
 			this.eAmi.events.once( `Action_${actionId}`, ( response ) => {
-				if( isUndefined( response.Response ) ) reject( false );
+				if( _isUndefined( response.Response ) ) reject( false );
 				if( response.Response == "Goodbye" ) resolve( true );
 				else reject( false );
 			} );
@@ -239,21 +204,15 @@ export class eAmiActions {
 		} );
 	}
 
-	/**
-	 *
-	 * @param {I_ActionOriginate} options
-	 * @returns {Promise<boolean>}
-	 * @constructor
-	 */
 	public Originate( options: I_ActionOriginate ): Promise<boolean> {
 		return new Promise( async ( resolve, reject ) => {
-			if( isUndefined( options ) ) reject( false );
+			if( _isUndefined( options ) ) reject( false );
 
 			options.Action = "Originate";
 			options.ActionID = new Date().getTime();
 
 			this.eAmi.events.once( "Action_" + options.ActionID, ( response: any ) => {
-				if( isUndefined( response.Message ) ) reject( false );
+				if( _isUndefined( response.Message ) ) reject( false );
 				if( response.Message.toString().toLowerCase().indexOf( "failed" ) >= 0 ) reject( false );
 
 				resolve( true );
@@ -272,11 +231,6 @@ export class eAmiActions {
 		} );
 	}
 
-	/**
-	 *
-	 * @returns {Promise<boolean>}
-	 * @constructor
-	 */
 	public Ping(): Promise<boolean> {
 		return new Promise( async ( resolve, reject ) => {
 
@@ -298,15 +252,9 @@ export class eAmiActions {
 		} );
 	}
 
-	/**
-	 *
-	 * @param {I_ActionQueueAdd} options
-	 * @returns {Promise<I_QueueMemberAdded>}
-	 * @constructor
-	 */
 	public QueueMemberAdd( options: I_ActionQueueAdd ): Promise<I_QueueMemberAdded> {
 		return new Promise( async ( resolve, reject ) => {
-			if( isUndefined( options ) ) reject( false );
+			if( _isUndefined( options ) ) reject( false );
 
 			options.Action = "QueueAdd";
 
@@ -322,15 +270,9 @@ export class eAmiActions {
 		} );
 	}
 
-	/**
-	 *
-	 * @param {I_ActionQueueRemove} options
-	 * @returns {Promise<I_QueueMemberRemoved>}
-	 * @constructor
-	 */
 	public QueueMemberRemove( options: I_ActionQueueRemove ): Promise<I_QueueMemberRemoved> {
 		return new Promise( async ( resolve, reject ) => {
-			if( isUndefined( options ) ) reject( false );
+			if( _isUndefined( options ) ) reject( false );
 
 			options.Action = "QueueRemove";
 
@@ -346,15 +288,9 @@ export class eAmiActions {
 		} );
 	}
 
-	/**
-	 *
-	 * @param {I_ActionQueuePenalty} options
-	 * @returns {Promise<I_QueueMemberPenalty>}
-	 * @constructor
-	 */
 	public QueueMemberPenalty( options: I_ActionQueuePenalty ): Promise<I_QueueMemberPenalty> {
 		return new Promise( async ( resolve, reject ) => {
-			if( isUndefined( options ) ) reject( false );
+			if( _isUndefined( options ) ) reject( false );
 
 			options.Action = "QueuePenalty";
 
@@ -370,15 +306,9 @@ export class eAmiActions {
 		} );
 	}
 
-	/**
-	 *
-	 * @param {I_ActionQueuePause} options
-	 * @returns {Promise<I_QueueMemberPause>}
-	 * @constructor
-	 */
 	public QueueMemberPause( options: I_ActionQueuePause ): Promise<I_QueueMemberPause> {
 		return new Promise( async ( resolve, reject ) => {
-			if( isUndefined( options ) ) reject( false );
+			if( _isUndefined( options ) ) reject( false );
 
 			options.Action = "QueuePause";
 
@@ -394,15 +324,9 @@ export class eAmiActions {
 		} );
 	}
 
-	/**
-	 *
-	 * @param {I_ActionQueueStatus} options
-	 * @returns {Promise<I_QueueMember[]>}
-	 * @constructor
-	 */
 	public QueueStatus( options: I_ActionQueueStatus ): Promise<I_QueueMember[]> {
 		return new Promise( async ( resolve, reject ) => {
-			if( isUndefined( options ) ) reject( false );
+			if( _isUndefined( options ) ) reject( false );
 
 			options.Action = "QueueStatus";
 
@@ -429,15 +353,9 @@ export class eAmiActions {
 		} );
 	}
 
-	/**
-	 *
-	 * @param {I_ActionQueueSummary} options
-	 * @returns {Promise<I_QueueSummary>}
-	 * @constructor
-	 */
 	public QueueSummary( options: I_ActionQueueSummary ): Promise<I_QueueSummary> {
 		return new Promise( async ( resolve, reject ) => {
-			if( isUndefined( options ) ) reject( false );
+			if( _isUndefined( options ) ) reject( false );
 
 			options.Action = "QueueSummary";
 
@@ -453,15 +371,9 @@ export class eAmiActions {
 		} );
 	}
 
-	/**
-	 *
-	 * @param {I_ActionStatus} options
-	 * @returns {Promise<I_Status>}
-	 * @constructor
-	 */
 	public Status( options: I_ActionStatus ): Promise<I_Status> {
 		return new Promise( async ( resolve, reject ) => {
-			if( isUndefined( options ) ) reject( false );
+			if( _isUndefined( options ) ) reject( false );
 
 			options.Action = "Status";
 
