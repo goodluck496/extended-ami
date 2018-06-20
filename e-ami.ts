@@ -9,7 +9,7 @@
 import { Socket } from "net";
 import { EventEmitter } from "events";
 import { _indexOfArray, _isEmpty, _isFinite, _isNull, _isUndefined, _toNumber } from "./functions";
-import { connectionOptions } from "./interfaces/configure.interface";
+import { IeAmiOptions } from "./interfaces/configure.interface";
 import { I_Request, I_Response, } from "./interfaces/actions.interface";
 import {
 	CRLF,
@@ -55,7 +55,7 @@ export class eAmi {
 	private _actions: eAmiActions;
 	private _events: EventEmitter;
 
-	constructor( allOptions: connectionOptions ) {
+	constructor( allOptions: IeAmiOptions ) {
 
 		let connect = allOptions,
 			options = _isUndefined( connect.additionalOptions ) ? {} : connect.additionalOptions;

@@ -1,4 +1,4 @@
-export interface connectionOptions {
+export interface IeAmiOptions {
 	host: string
 	port: number
 	userName: string

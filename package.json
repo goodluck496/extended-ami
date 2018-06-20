@@ -3,7 +3,7 @@
   "description": "Advanced manager for connecting to Asterisk",
   "author": "Kalinin Nikita",
   "license": "MIT",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "main": "./dist/e-ami.js",
   "typings": "./e-ami.d.ts",
   "engines": {
@@ -14,8 +14,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "build-watch": "tsc --watch",
-    "build-watch-with-nodemon": "tsc --watch && nodemon ./dist/e-ami.js"
+    "build-watch": "tsc --watch"
   },
   "dependencies": {
     "events": "^3.0.0",
