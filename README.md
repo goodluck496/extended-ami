@@ -17,18 +17,93 @@ support with types ` >= 12`
 
 ### Events
 
-* `connect` - emits when client was connected;
-* `disconnect` -  emits when client was disconnected;
-* `events` - emits when was received a new event of Asterisk;
-* `response` -  emits when was received a new response of Asterisk;
-* `reconnected` -  emits when client tries reconnect to Asterisk;
+````typescript
+import {eAMI_EVENTS}  from "extended-ami"
+
+{
+    CONNECT: "connect", //emits when client was connected;
+    DO_RECONNECT: "reconnect", //eAmi initiated reconnection to asterisk
+    RECONNECTED: "reconnected", //emits when client tries reconnect to Asterisk;
+    MAX_RECONNECT_REACH: "max-reconnect-reach", //reached the maximum number of reconnections
+    MAX_AUTH_REACH: "max-auth-reach", //reached the maximum number of authorizations
+
+    DO_LOGIN: "login", //hook before the beginning of authorization, contains the data for authorization
+    RE_LOGIN: "re-login", //emit at the time when a reauthorization occurs
+    LOGGED_IN: "loggedin", //emit when manager authorized
+
+    SEND: "send", //hook before sending a message, contains a message
+    EVENTS: "events", //emits when was received a new event of Asterisk;
+    RESPONSE: "response", //emits when was received a new response of Asterisk;
+
+    ERROR_CONNECT: "error.connect",
+    ERROR_LOGIN: "error.login",
+    ERROR_LOGOUT: "error.logout",
+    ERROR_RECONNECT: "error.reconnect"
+}
+
+import {AMI_EVENTS} from "extended-ami"
+ 
+{
+	BRIDGE_CREATE: "BridgeCreate",
+    BRIDGE_DESTROY: "BridgeDestroy",
+    BRIDGE_ENTER: "BridgeEnter",
+    BRIDGE_INFO_CHANNEL: "BridgeInfoChannel",
+    BRIDGE_INFO: "BridgeInfoComplete",
+    BRIDGE_LEAVE: "BridgeLeave",
+    BRIDGE_MERGE: "BridgeMerge",
+    BRIDGE_LIST_ITEM: "BridgeListItem",
+    BRIDGE_LIST_COMPLETE: "BridgeListComplete",
+
+    CEL: "CEL",
+
+    CORE_SHOW_CHANNEL: "CoreShowChannel",
+    CORE_SHOW_CHANNEL_COMPLETE: "CoreShowChannelsComplete",
+
+    DIAL1: "DialBegin",
+    DIAL2: "DialEnd",
+    DIAL_STATE: "DialState",
+
+    DTMF1: "DTMFBegin",
+    DTMF2: "DTMFEnd",
+
+    HANGUP: "Hangup",
+    HANGUP_REQUEST: "HangupRequest",
+
+    HOLD: "Hold",
+
+    NEW_CALLERID: "NewCallerid",
+    NEW_CHANNEL: "Newchannel",
+    NEW_CONNECTED_LINE: "NewConnectedLine",
+    NEW_EXTEN: "NewExten",
+    NEW_STATE: "NewState",
+
+    ORIGINATE_RESPONSE: "OriginateResponse",
+
+    Q_SUMMARY: "QueueSummary",
+    Q_PARAMS: "QueueParams",
+    Q_MEMBER_ADDED: "QueueMemberAdded",
+    Q_MEMBER_PAUSE: "QueueMemberPause",
+    Q_MEMBER_REMOVED: "QueueMemberRemoved",
+    Q_MEMBER_PENALTY: "QueuePenalty",
+    Q_MEMBER_RING_IN_USE: "QueueMemberRinginuse",
+    Q_MEMBER: "QueueMember",
+    Q_MEMBER_STATUS: "QueueMemberStatus",
+
+    RTCP_SENT: "RTCPSent",
+    RTCP_RECEIVED: "RTCPReceived",
+
+    STATUS: "Status"
+}
+
+````
+
 * `${eventName}` - emits when was received event with name `eventName` of Asterisk.
 * `${Action_ActionID}` - emits when was received response with `ActionID` of Asterisk.
 
 ### Methods 
 
 * `.connect(options)` - connect to Asterisk.
-* `.action<type>(options_by_type)` - send new action to Asterisk;
+* `.action<Request, Response>(options_by_type)` - send new action to Asterisk;
 * `.getRequest(actionID)` - receive an item from the queue sent by an asterisk;
 * `.removeRequest(actionID)` - remove an item from the queue sent by asterisk;
 
@@ -49,9 +124,6 @@ Additional options
 * `reconnect: boolean` -  reconnect to asterisk after losing connection or because of a large timeout (the default is true); 
 * `maxReconnectCount: number` - the maximum number of such reconnections (the default is 10);
 * `heartbeatInterval: number` - connection testing frequency (ping command) in seconds (the default is 1 second);
-* `timeOutToDefibrillation: number` - after how many seconds after losing the connection, try to restore it (the default is 5 second);
-* `resendAction: boolean` - resend a message for an asterisk if the message is not sent (the default is false);
-* `timeOutSend: number` - how many seconds to wait for an asterisk (the default is 3 second);
 * `excludeEvents: string[]` -  exclude some events from the processing (convenient for debugging, the default is empty array);
 * `emitAllEvents: boolean` - `events` event contains the original asterisk replies. But if events are present in `excludeEvents` then they will be omitted (the default is false);
 

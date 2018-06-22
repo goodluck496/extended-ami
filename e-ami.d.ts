@@ -1,38 +1,12 @@
-import { connectionOptions } from "./interfaces/configure.interface";
-import {
-	I_ActionBridgeInfo,
-	I_ActionBridgeList,
-	I_ActionCoreShowChannels,
-	I_ActionHangup,
-	I_ActionLogin,
-	I_ActionOriginate,
-	I_ActionQueueAdd,
-	I_ActionQueuePause,
-	I_ActionQueuePenalty,
-	I_ActionQueueRemove,
-	I_ActionQueueStatus,
-	I_ActionQueueSummary,
-	I_ActionStatus,
-	I_Request,
-	I_Response,
-} from "./interfaces/actions.interface";
 import { Socket } from "net";
 import { EventEmitter } from "events";
-import { I_BridgeInfoChannel, I_BridgeListItem } from "./interfaces/bridge.interface";
-import { I_CoreShowChannel } from "./interfaces/core-interface";
-import { I_DualHangup } from "./interfaces/hangup.interface";
-import {
-	I_QueueMember,
-	I_QueueMemberAdded,
-	I_QueueMemberPause,
-	I_QueueMemberPenalty,
-	I_QueueMemberRemoved,
-	I_QueueSummary,
-} from "./interfaces/queue";
-import { I_Status } from "./interfaces/status.interface";
+import { I_Request } from "./interfaces/actions.interface";
+import { eAmiActions } from "./e-ami-actions";
 
 declare namespace extended_ami {
 
+
+	import Timer = NodeJS.Timer;
 
 	/**
 	 * Configure option interfaces
@@ -46,6 +20,7 @@ declare namespace extended_ami {
 
 		additionalOptions?: IAddinionalOptions
 	}
+
 	export interface IAddinionalOptions {
 
 		//Output messages to the console
@@ -68,7 +43,6 @@ declare namespace extended_ami {
 		excludeEvents?: string[]
 	}
 
-
 	/**
 	 * Asterisk manager actions
 	 *
@@ -79,8 +53,9 @@ declare namespace extended_ami {
 		ActionID?: number | string
 		Request?: I_Request
 
-		[p:string]: any
+		[p: string]: any
 	}
+
 	export interface I_Request {
 		//ActionID for this transaction. Will be returned.
 		ActionID?: number | string
@@ -370,6 +345,7 @@ declare namespace extended_ami {
 		UserEvent: string
 		//Contents
 		Header1: string
+
 		[HeaderN: string]: any
 	}
 
@@ -671,7 +647,7 @@ declare namespace extended_ami {
 		DestChannel: string             //'IAX2/aster-25872'
 		DestChannelState: number        // 5
 		DestChannelStateDesc: string    //'Ringing'
-		DestCallerIDNum:  number        // 1877
+		DestCallerIDNum: number        // 1877
 		DestCallerIDName: string        //'110 test'
 		DestConnectedLineNum: number    // 89*****4387
 		DestConnectedLineName: string   // null
@@ -684,6 +660,7 @@ declare namespace extended_ami {
 		DestLinkedid: number            // 1528262325.580183'
 		DialStatus: string              //'RINGING'
 	}
+
 	export interface I_DialEnd {
 		Privilege: string               //'call,all'
 		Channel: string                 //'IAX2/aster-17127'
@@ -704,7 +681,7 @@ declare namespace extended_ami {
 		DestChannel: string             //'IAX2/aster-25872'
 		DestChannelState: number        // 5
 		DestChannelStateDesc: string    //'Ringing'
-		DestCallerIDNum:  number        // 1877
+		DestCallerIDNum: number        // 1877
 		DestCallerIDName: string        //'110 test'
 		DestConnectedLineNum: number    // 89*****4387
 		DestConnectedLineName: string   // null
@@ -717,6 +694,7 @@ declare namespace extended_ami {
 		DestLinkedid: number            // 1528262325.580183'
 		DialStatus: string              //'RINGING'
 	}
+
 	export interface I_DialState {
 		Privilege: string               //'call,all'
 		Channel: string                 //'IAX2/aster-17127'
@@ -737,7 +715,7 @@ declare namespace extended_ami {
 		DestChannel: string             //'IAX2/aster-25872'
 		DestChannelState: number        // 5
 		DestChannelStateDesc: string    //'Ringing'
-		DestCallerIDNum:  number        // 1877
+		DestCallerIDNum: number        // 1877
 		DestCallerIDName: string        //'110 test'
 		DestConnectedLineNum: number    // 89*****4387
 		DestConnectedLineName: string   // null
@@ -774,6 +752,7 @@ declare namespace extended_ami {
 		Digit: string
 		Direction: "Received" | "Sent"
 	}
+
 	export interface I_DTMFEnd {
 		Event: string
 		Channel: string
@@ -934,7 +913,7 @@ declare namespace extended_ami {
 
 	/**
 	 * Originate event interface
-	 * 
+	 *
 	 */
 	export interface I_OriginateResponse {
 		Event: "OriginateResponse"
@@ -953,7 +932,7 @@ declare namespace extended_ami {
 
 	/**
 	 * Queue event interfaces
-	 * 
+	 *
 	 */
 		//Response by QueueStatus action
 		//Вызывается для каждого оператора очереди
@@ -981,15 +960,15 @@ declare namespace extended_ami {
 		// Set to 1 if member is in call. Set to 0 after LastCall time is updated.
 		InCall: 0 | 1
 		//The numeric device state status of the queue member.
-		Status:  0 // AST_DEVICE_UNKNOWN
-			|1 // AST_DEVICE_NOT_INUSE
-			|2 // AST_DEVICE_INUSE
-			|3 // AST_DEVICE_BUSY
-			|4 // AST_DEVICE_INVALID
-			|5 // AST_DEVICE_UNAVAILABLE
-			|6 // AST_DEVICE_RINGING
-			|7 // AST_DEVICE_RINGINUSE
-			|8 // AST_DEVICE_ONHOLD
+		Status: 0 // AST_DEVICE_UNKNOWN
+			| 1 // AST_DEVICE_NOT_INUSE
+			| 2 // AST_DEVICE_INUSE
+			| 3 // AST_DEVICE_BUSY
+			| 4 // AST_DEVICE_INVALID
+			| 5 // AST_DEVICE_UNAVAILABLE
+			| 6 // AST_DEVICE_RINGING
+			| 7 // AST_DEVICE_RINGINUSE
+			| 8 // AST_DEVICE_ONHOLD
 
 		Paused: 0 | 1
 		//If set when paused, the reason the queue member was paused.
@@ -1071,15 +1050,15 @@ declare namespace extended_ami {
 		// Set to 1 if member is in call. Set to 0 after LastCall time is updated.
 		InCall: 0 | 1
 		//The numeric device state status of the queue member.
-		Status:  0 // AST_DEVICE_UNKNOWN
-			|1 // AST_DEVICE_NOT_INUSE
-			|2 // AST_DEVICE_INUSE
-			|3 // AST_DEVICE_BUSY
-			|4 // AST_DEVICE_INVALID
-			|5 // AST_DEVICE_UNAVAILABLE
-			|6 // AST_DEVICE_RINGING
-			|7 // AST_DEVICE_RINGINUSE
-			|8 // AST_DEVICE_ONHOLD
+		Status: 0 // AST_DEVICE_UNKNOWN
+			| 1 // AST_DEVICE_NOT_INUSE
+			| 2 // AST_DEVICE_INUSE
+			| 3 // AST_DEVICE_BUSY
+			| 4 // AST_DEVICE_INVALID
+			| 5 // AST_DEVICE_UNAVAILABLE
+			| 6 // AST_DEVICE_RINGING
+			| 7 // AST_DEVICE_RINGINUSE
+			| 8 // AST_DEVICE_ONHOLD
 
 		Paused: 0 | 1
 		//If set when paused, the reason the queue member was paused.
@@ -1112,15 +1091,15 @@ declare namespace extended_ami {
 		// Set to 1 if member is in call. Set to 0 after LastCall time is updated.
 		InCall: 0 | 1
 		//The numeric device state status of the queue member.
-		Status:  0 // AST_DEVICE_UNKNOWN
-			|1 // AST_DEVICE_NOT_INUSE
-			|2 // AST_DEVICE_INUSE
-			|3 // AST_DEVICE_BUSY
-			|4 // AST_DEVICE_INVALID
-			|5 // AST_DEVICE_UNAVAILABLE
-			|6 // AST_DEVICE_RINGING
-			|7 // AST_DEVICE_RINGINUSE
-			|8 // AST_DEVICE_ONHOLD
+		Status: 0 // AST_DEVICE_UNKNOWN
+			| 1 // AST_DEVICE_NOT_INUSE
+			| 2 // AST_DEVICE_INUSE
+			| 3 // AST_DEVICE_BUSY
+			| 4 // AST_DEVICE_INVALID
+			| 5 // AST_DEVICE_UNAVAILABLE
+			| 6 // AST_DEVICE_RINGING
+			| 7 // AST_DEVICE_RINGINUSE
+			| 8 // AST_DEVICE_ONHOLD
 
 		Paused: 0 | 1
 		//If set when paused, the reason the queue member was paused.
@@ -1138,6 +1117,22 @@ declare namespace extended_ami {
 		TalkTime: number
 		LoggedIn: number
 		LongestHoldTime: number
+	}
+
+	export interface I_QueueParams {
+		Event: string,
+		Queue: string 				//'callcenter_q',
+		Max: number,				//50
+		Strategy: string 			//'rrmemory',
+		Calls: number				//0,
+		Holdtime: number  			//13,
+		TalkTime: number  			//182,
+		Completed: number 			//5427,
+		Abandoned: number			//1162,
+		ServiceLevel: number		//0,
+		ServicelevelPerf: number 	//0.2,
+		Weight: number				//0,
+		ActionID: number | string 	//'1529582822906'
 	}
 
 	/**
@@ -1253,7 +1248,7 @@ declare namespace extended_ami {
 
 	/**
 	 * Status event interface
-	 * 
+	 *
 	 */
 		//Raised in response to a Status command.
 	export interface I_Status {
@@ -1389,7 +1384,7 @@ declare namespace extended_ami {
 	function _indexOfArray( array: any[], value: any ): number;
 
 	class eAmi {
-		constructor( options: connectionOptions );
+		constructor( options: IeAmiOptions );
 
 		public debug: boolean;
 
@@ -1401,17 +1396,15 @@ declare namespace extended_ami {
 		private _isLoggedIn: boolean;
 		private _emitAllEvents: boolean;
 		private _reconnect: boolean;
-		private _resendAction: boolean;
 		private _heartbeatOk: boolean;
 
 		private _lastConnectedTime: number;
 		private _maxReconnectCount: number;
 		private _heartbeatInterval: number;
-		private _timeOutSend: number;
-		private _timeOutToDefibrillation: number;
-		private _heartbeatHandler: number;
-		private _heartbeatTimeout: number;
-		private _countPreDefibrillation: number;
+		private _heartbeatHandler: Timer;
+		private _successBitsByInterval: number;
+		private _errorBitsByInterval: number;
+
 		private _countReconnect: number;
 
 		private _excludeEvents: string[];
@@ -1419,20 +1412,21 @@ declare namespace extended_ami {
 		private _queueRequest: I_Request[];
 		private _socketHandler: Socket;
 		private _actions: eAmiActions;
-		private _events: EventEmitter;
+
+		private _maxAuthCount: number;
+		private _authCount: number;
 
 		/**
-		 * 
+		 *
 		 * Getters
 		 */
 		public excludeEvents: string[];
 		public isLoggedIn: boolean;
-		public lastConnectTime: number
-		public actions: eAmiActions
-		public events: EventEmitter
-		public queueRequest: I_Request[]
-		
-		
+		public lastConnectTime: number;
+		public actions: eAmiActions;
+		public events: EventEmitter;
+
+
 		private destroySocket(): void;
 
 		/**
@@ -1493,11 +1487,11 @@ declare namespace extended_ami {
 		public reconnect(): Promise<boolean>;
 
 		/**
-		 *
-		 * @param {T} request ** {T} = I_Action<SomeAction>
-		 * @returns {Promise<boolean | T>} false - timeOut or error
+		 * 
+		 * @param {T} request
+		 * @returns {Promise<R>}
 		 */
-		public action<T>( request: T ): Promise<T | boolean>;
+		public action<T, R>( request: T ): Promise<R>
 
 		/**
 		 *
@@ -1617,6 +1611,79 @@ declare namespace extended_ami {
 		 */
 		public Status( options: I_ActionStatus ): Promise<I_Status>;
 	}
+
+	export const AMI_EVENTS: {
+		BRIDGE_CREATE: "BridgeCreate",
+		BRIDGE_DESTROY: "BridgeDestroy",
+		BRIDGE_ENTER: "BridgeEnter",
+		BRIDGE_INFO_CHANNEL: "BridgeInfoChannel",
+		BRIDGE_INFO: "BridgeInfoComplete",
+		BRIDGE_LEAVE: "BridgeLeave",
+		BRIDGE_MERGE: "BridgeMerge",
+		BRIDGE_LIST_ITEM: "BridgeListItem",
+		BRIDGE_LIST_COMPLETE: "BridgeListComplete",
+
+		CEL: "CEL",
+
+		CORE_SHOW_CHANNEL: "CoreShowChannel",
+		CORE_SHOW_CHANNEL_COMPLETE: "CoreShowChannelsComplete",
+
+		DIAL1: "DialBegin",
+		DIAL2: "DialEnd",
+		DIAL_STATE: "DialState",
+
+		DTMF1: "DTMFBegin",
+		DTMF2: "DTMFEnd",
+
+		HANGUP: "Hangup",
+		HANGUP_REQUEST: "HangupRequest",
+
+		HOLD: "Hold",
+
+		NEW_CALLERID: "NewCallerid",
+		NEW_CHANNEL: "Newchannel",
+		NEW_CONNECTED_LINE: "NewConnectedLine",
+		NEW_EXTEN: "NewExten",
+		NEW_STATE: "NewState",
+
+		ORIGINATE_RESPONSE: "OriginateResponse",
+
+		Q_SUMMARY: "QueueSummary",
+		Q_PARAMS: "QueueParams",
+		Q_MEMBER_ADDED: "QueueMemberAdded",
+		Q_MEMBER_PAUSE: "QueueMemberPause",
+		Q_MEMBER_REMOVED: "QueueMemberRemoved",
+		Q_MEMBER_PENALTY: "QueuePenalty",
+		Q_MEMBER_RING_IN_USE: "QueueMemberRinginuse",
+		Q_MEMBER: "QueueMember",
+		Q_MEMBER_STATUS: "QueueMemberStatus",
+
+		RTCP_SENT: "RTCPSent",
+		RTCP_RECEIVED: "RTCPReceived",
+
+		STATUS: "Status",
+	};
+	export const eAMI_EVENTS: {
+		CONNECT: "connect", //emits when client was connected;
+		DO_RECONNECT: "reconnect",
+		RECONNECTED: "reconnected",
+		MAX_RECONNECT_REACH: "max-reconnect-reach",
+		MAX_AUTH_REACH: "max-auth-reach",
+
+		DO_LOGIN: "login",
+		RE_LOGIN: "re-login",
+		LOGGED_IN: "loggedin",
+
+		SEND: "send",
+		EVENTS: "events",
+		RESPONSE: "response",
+
+		ERROR_CONNECT: "error.connect",
+		ERROR_LOGIN: "error.login",
+		ERROR_LOGOUT: "error.logout",
+		ERROR_RECONNECT: "error.reconnect"
+	};
+
 }
 
 export = extended_ami;

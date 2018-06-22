@@ -182,3 +182,19 @@ export interface I_QueueSummary {
 	LoggedIn: number
 	LongestHoldTime: number
 }
+
+export interface I_QueueParams {
+	Event: string				//QueueParams
+	Queue: string				//'callcenter_q',
+	Max: number					//50
+	Strategy: string 			//'rrmemory',
+	Calls: number				//0,
+	Holdtime: number  			//13,
+	TalkTime: number  			//182,
+	Completed: number 			//5427,
+	Abandoned: number			//1162,
+	ServiceLevel: number		//0,
+	ServicelevelPerf: number 	//0.2,
+	Weight: number				//0,
+	ActionID: number | string 	//'1529582822906'
+}

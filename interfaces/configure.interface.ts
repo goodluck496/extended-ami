@@ -11,15 +11,11 @@ export interface IAddinionalOptions {
 	//Output messages to the console
 	debug?: boolean
 	//Delay before resending a command (in seconds)
-	timeOutSend?: number
-	//resend message on after timeout
-	resendAction?: boolean
+	resendTimeOut?: number
 	//reconnect after timeout defibrillation
 	reconnect?: boolean
 	maxReconnectCount?: number
 	emitAllEvents?: boolean
-	// in seconds
-	timeOutToDefibrillation?: number
 
 	//ping command frequency
 	heartbeatInterval?: number

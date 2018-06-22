@@ -7,22 +7,24 @@
 'use strict';
 
 import { Socket } from "net";
-import { EventEmitter } from "events";
 import { _indexOfArray, _isEmpty, _isFinite, _isNull, _isUndefined, _toNumber } from "./functions";
 import { IeAmiOptions } from "./interfaces/configure.interface";
-import { I_Request, I_Response, } from "./interfaces/actions.interface";
+import { I_ActionLogin, I_Request, I_Response, } from "./interfaces/actions.interface";
 import {
+	_AMI_EVENTS,
+	_eAMI_EVENTS,
 	CRLF,
 	DEFAULT_PORT,
 	END,
 	HEARTBEAT_INTERVAL,
-	HEARTBEAT_TIMEOUT,
-	MAX_RECONNECT_COUNT,
-	TIMEOUT_FOR_SEND,
-	TIMEOUT_TO_DEFIBRILLATION,
+	MAX_RECONNECT_COUNT, RESEND_TIMEOUT,
 } from "./constants";
 import { eAmiActions } from "./e-ami-actions";
+import { EventEmitter } from "events";
+import Timer = NodeJS.Timer;
 
+export const eAMI_EVENTS = _eAMI_EVENTS;
+export const AMI_EVENTS = _AMI_EVENTS;
 
 export class eAmi {
 	public debug: boolean;
@@ -35,17 +37,16 @@ export class eAmi {
 	private _isLoggedIn: boolean;
 	private _emitAllEvents: boolean;
 	private _reconnect: boolean;
-	private _resendAction: boolean;
 	private _heartbeatOk: boolean;
 
 	private _lastConnectedTime: number;
 	private _maxReconnectCount: number;
 	private _heartbeatInterval: number;
-	private _timeOutSend: number;
-	private _timeOutToDefibrillation: number;
-	private _heartbeatHandler: number;
-	private _heartbeatTimeout: number;
-	private _countPreDefibrillation: number;
+	private _heartbeatHandler: Timer;
+	private _resendTimeOut: number;
+	private _successBitsByInterval: number;
+	private _errorBitsByInterval: number;
+
 	private _countReconnect: number;
 
 	private _excludeEvents: string[];
@@ -53,7 +54,10 @@ export class eAmi {
 	private _queueRequest: I_Request[];
 	private _socketHandler: Socket;
 	private _actions: eAmiActions;
-	private _events: EventEmitter;
+	public events: EventEmitter;
+
+	private _maxAuthCount: number;
+	private _authCount: number;
 
 	constructor( allOptions: IeAmiOptions ) {
 
@@ -66,30 +70,21 @@ export class eAmi {
 		this._password = connect.password;
 
 		this._reconnect = _isUndefined( options.reconnect ) ? true : options.reconnect;
-
 		this._heartbeatInterval = _isUndefined( options.heartbeatInterval ) ? HEARTBEAT_INTERVAL * 1000 : options.heartbeatInterval * 1000;
-
-		this.excludeEvents = _isUndefined( options.excludeEvents ) || _isEmpty( options.excludeEvents ) ? [] : options.excludeEvents;
-
-		this._timeOutSend = _isUndefined( options.timeOutSend ) ? TIMEOUT_FOR_SEND : options.timeOutSend;
-
-		this._resendAction = _isUndefined( options.resendAction ) ? false : options.resendAction;
-
+		this._resendTimeOut = _isUndefined( options.resendTimeOut ) ? RESEND_TIMEOUT * 1000 : options.resendTimeOut * 1000;
+		this._excludeEvents = _isUndefined( options.excludeEvents ) || _isEmpty( options.excludeEvents ) ? [] : options.excludeEvents;
 		this._emitAllEvents = _isUndefined( options.emitAllEvents ) ? false : options.emitAllEvents;
-
 		this.debug = _isUndefined( options.debug ) ? false : options.debug;
-
-		this._timeOutToDefibrillation = _isUndefined( options.timeOutToDefibrillation ) ?
-			TIMEOUT_TO_DEFIBRILLATION : options.timeOutToDefibrillation;
-
-		this._heartbeatTimeout = HEARTBEAT_TIMEOUT;
 
 		this._maxReconnectCount = _isUndefined( options.maxReconnectCount ) ? MAX_RECONNECT_COUNT : options.maxReconnectCount;
 
-		this._countPreDefibrillation = 0;
 		this._countReconnect = 0;
+		this._maxAuthCount = 5;
+		this._authCount = 0;
+		this._successBitsByInterval = 0;
+		this._errorBitsByInterval = 0;
 
-		this._events = new EventEmitter();
+		this.events = new EventEmitter();
 
 		this._queueRequest = [];
 
@@ -97,6 +92,25 @@ export class eAmi {
 
 		this._actions = new eAmiActions( this );
 
+		this.internalListeners();
+	}
+
+	private internalListeners() {
+		this.events.on( eAMI_EVENTS.RE_LOGIN, () => {
+			if( this._authCount < this._maxAuthCount ) {
+				setTimeout( async () => {
+					this._authCount++;
+					try {
+						await this.login();
+					} catch( error ) {
+						if( this.debug ) console.log( "re-login", error );
+					}
+
+
+				}, 1000 );
+
+			}
+		} );
 	}
 
 	get excludeEvents(): string[] {
@@ -115,22 +129,22 @@ export class eAmi {
 		return this._lastConnectedTime;
 	}
 
-	get actions() {
+	get actions(): eAmiActions {
 		return this._actions;
 	}
 
-	get events() {
-		return this._events;
-	}
-
-	get queueRequest() {
+	get queueRequest(): I_Request[] {
 		return this._queueRequest;
 	}
 
 	private addSocketListeners(): void {
 		this._socketHandler
-			.on( "close", () => { if( this.debug ) console.log( "close AMI connect" ); } )
-			.on( "end", () => { if( this.debug ) console.log( "end AMI connect" );} )
+			.on( "close", () => {
+				if( this.debug ) console.log( "close AMI connect" );
+			} )
+			.on( "end", () => {
+				if( this.debug ) console.log( "end AMI connect" );
+			} )
 			.on( "data", ( buffer: BufferSource ) => this.getData( buffer ) );
 	}
 
@@ -141,9 +155,11 @@ export class eAmi {
 
 	private addRequest( request: I_Request ): void {
 		this.queueRequest.push( request );
+		this.events.emit( eAMI_EVENTS.SEND, request );
 	}
 
-	removeRequest( actionID: any ): boolean {
+	private removeRequest( actionID: any ): boolean {
+
 		if( _isUndefined( actionID ) ) return false;
 
 		let index: number = _indexOfArray( this.queueRequest, actionID );
@@ -159,8 +175,9 @@ export class eAmi {
 
 	}
 
-	getRequest( actionID: any ): I_Request | boolean {
+	public getRequest( actionID: any ): I_Request | boolean {
 		if( _isUndefined( actionID ) ) return false;
+		if( isFinite( _toNumber( actionID ) ) ) actionID = _toNumber( actionID );
 
 		let index: number = _indexOfArray( this.queueRequest, actionID );
 
@@ -186,60 +203,28 @@ export class eAmi {
 
 			try {
 
-				let ping: boolean = await this.actions.Ping();
+				let response: boolean = await this.actions.Ping();
 
-				if( ping ) {
+				if( response ) {
 					this._heartbeatOk = true;
 					resolve( true );
-				} else reject( false );
+					this._successBitsByInterval++;
+				}
 
+				this._heartbeatHandler = setTimeout( async () => {
 
-				this._heartbeatHandler = setInterval( async () => {
-					if( this._heartbeatOk ) {
-						this._heartbeatOk = false;
-						this._countPreDefibrillation = 0;
+					try {
 						await this.keepConnection();
-
-					} else if( countRetrySend < this._heartbeatTimeout ) {
-						countRetrySend++;
-						if( this.debug ) console.log( "Timeout received - %d, count to reconnect - %d", countRetrySend, this._timeOutToDefibrillation - this._countPreDefibrillation );
-					} else if( this._countPreDefibrillation < this._timeOutToDefibrillation ) {
-						this._countPreDefibrillation++;
-						if( this.debug ) console.log( "Timeout received exceeded..." );
-
-						try {
-							await this.keepConnection();
-						} catch( error ) {
-							console.log( "KeepAlive message did not reach, ... resend" );
-							await this.keepConnection();
-						}
-
-
-					} else {
-						if( this.debug ) console.log( "Keep connection failed [timeout ping]" );
-						this._countPreDefibrillation = 0;
-
-						this._isLoggedIn = false;
-
-						try {
-							await this.reconnect();
-						} catch( error ) {
-							console.log( error );
-							console.log( "Error while restoring connection, reconnect after %s seconds..", this._timeOutToDefibrillation );
-							setTimeout( () => {
-								this.reconnect();
-							}, this._timeOutToDefibrillation * 1000 );
-						}
-
+					} catch( error ) {
+						console.log( "keep timeout error", error );
+						this._errorBitsByInterval++;
 					}
 
 				}, this._heartbeatInterval );
 
-
 			} catch( error ) {
-				if( this.debug ) console.log( "Keep connection failed [send ping]", error );
-
-				reject( false );
+				this._errorBitsByInterval++;
+				console.log( "keep connect error", error );
 			}
 		} );
 	}
@@ -248,14 +233,40 @@ export class eAmi {
 		return new Promise( async ( resolve, reject ) => {
 			try {
 
-				await this.actions.Login( {
+				let loginOptions: I_ActionLogin = {
 					Username: this._userName,
 					Secret: this._password,
-				} );
+				};
+
+				this.events.emit( eAMI_EVENTS.DO_LOGIN, loginOptions );
+
+				await this.actions.Login( loginOptions );
+
+				this.events.emit( eAMI_EVENTS.LOGGED_IN );
 
 				resolve( true );
-			} catch( error ) {
-				reject( "Authorization failed" );
+			} catch( error0 ) {
+
+				this.events.emit( eAMI_EVENTS.ERROR_LOGIN, error0, "Authorization failed..." );
+
+				if( this._authCount < this._maxAuthCount ) {
+					setTimeout( () => {
+						this._authCount++;
+						this.events.emit( eAMI_EVENTS.RE_LOGIN, this._authCount );
+
+					}, 1000 );
+
+				} else {
+
+					this.events.emit( eAMI_EVENTS.MAX_AUTH_REACH, this._authCount );
+
+					try {
+						await this.reconnect();
+					} catch( error1 ) {
+						reject( error1 );
+					}
+
+				}
 			}
 		} );
 	}
@@ -268,9 +279,20 @@ export class eAmi {
 
 				resolve( true );
 			} catch( error ) {
+				this.events.emit( eAMI_EVENTS.ERROR_LOGOUT, error );
 				reject( "Failed to logout" );
+
 			}
 		} );
+	}
+
+	private showSendPackages(): void {
+		setInterval( () => {
+
+			console.log( "Keep Connection. success sent - %s, error sent - %s", this._successBitsByInterval, this._errorBitsByInterval );
+			//this._successBitsByInterval = this._errorBitsByInterval = 0;
+
+		}, 5000 );
 	}
 
 	public connect(): Promise<this | boolean> {
@@ -291,20 +313,21 @@ export class eAmi {
 						this._isLoggedIn = true;
 						this._lastConnectedTime = new Date().getTime();
 
+						if( this.debug ) this.showSendPackages();
 						await this.keepConnection();
 
-						this.events.emit( "connect" );
+						this.events.emit( eAMI_EVENTS.CONNECT );
 
 						resolve( this );
 
 					} catch( error ) {
 						if( this.debug ) console.log( error );
-						reject( false );
+						reject( error );
 					}
 
 				} )
 				.on( 'error', ( error ) => {
-					this.events.emit( "error", error );
+					this.events.emit( eAMI_EVENTS.ERROR_CONNECT, error, "Error connecting to an asterisk server" );
 					if( this.debug ) console.log( "Error connecting to an asterisk server", error );
 					reject( false );
 				} );
@@ -315,33 +338,39 @@ export class eAmi {
 	}
 
 	public reconnect(): Promise<boolean> {
-		if( !this._reconnect ) return;
+		if( !this._reconnect ) return Promise.resolve( true );
 		if( this._countReconnect < this._maxReconnectCount ) this._countReconnect++;
-		else throw "Maximum number of reconnections reached";
+		else {
+			this.events.emit( eAMI_EVENTS.MAX_RECONNECT_REACH, this._countReconnect );
+			return;
+		}
 
 		return new Promise( async ( resolve, reject ) => {
 
-
 			try {
-				this.events.emit( "disconnect" );
+				this.events.emit( eAMI_EVENTS.DO_RECONNECT );
 
 				await this.logout();
 				this.destroySocket();
 				await this.connect();
 
-				this.events.emit( "reconnected" );
+				this.events.emit( eAMI_EVENTS.RECONNECTED );
+				resolve( true );
 
 			} catch( error ) {
+				this.events.emit( eAMI_EVENTS.ERROR_RECONNECT, error, "Could not connect to Asterisk..." );
 				reject( "Could not connect to Asterisk..." );
 			}
 
 		} );
 	}
 
-	public action<T>( request: T ): Promise<T | boolean> {
+	public action<T, R>( request: T ): Promise<R> {
 		return new Promise( ( resolve, reject ) => {
 
-			let message = "";
+			let write: boolean,
+				writed: boolean = false,
+				message = "";
 
 			for( let key in request ) {
 				if( key == "ActionID" ) continue;
@@ -349,40 +378,68 @@ export class eAmi {
 			}
 
 			if( _isUndefined( request[ "ActionID" ] ) ) request[ "ActionID" ] = new Date().getTime();
+			let actionID = request[ "ActionID" ];
 
-			message += "ActionID: " + request[ "ActionID" ] + CRLF + CRLF;
+			message += "ActionID: " + actionID + CRLF + CRLF;
 
-			let writed: boolean = false,
-				second: number = 0,
-				write = this._socketHandler.write( message, () => {
-					writed = true;
-					this.addRequest( request );
-					resolve( request );
-				} ),
+			//handlers for resolve
+			this.events.once( `Action_${actionID}`, ( response: R ) => {
+				_request[ "Completed" ] = true;
 
-				intervalTimeout = setInterval( () => {
-					if( writed ) {
-						resolve( request );
-						clearInterval( intervalTimeout );
-					} else if( second <= this._timeOutSend ) {
-						second++;
-					} else {
-						if( this._resendAction ) {
-							if( this.debug ) console.log( "Resend Action - ", request[ "Action" ] );
-							this.action<T>( request );
-						} else {
-							if( this.debug ) console.log( "Delay in sending a message" );
-							reject( false );
-							clearInterval( intervalTimeout );
-						}
+				if( this.debug ) console.log( "response", _request[ "ActionID" ], _request[ "Action" ], );
 
+				resolve( response );
+			} );
+			if( !_isFinite( _toNumber( actionID ) ) ) {
+				this.events.once( actionID, ( response: R ) => {
+					_request[ "Completed" ] = true;
+					resolve( response );
+
+				} );
+			}
+
+			this.addRequest( request );
+			let _request = this.getRequest( actionID );
+
+			_request[ "ActionID" ] = _isFinite( _toNumber( request[ "ActionID" ] ) ) ? _toNumber( request[ "ActionID" ] ) : request[ "ActionID" ];
+			_request[ "Completed" ] = false;
+			_request[ "timeOutHandler" ] = setTimeout( async () => {
+				if( !writed ) {
+					reject( "Timeout write to socket..." );
+					return;
+				}
+
+				if( !_request[ "Completed" ] ) {
+
+					try {
+						await this.action( request );
+					} catch( error ) {
+						if( this.debug ) console.log( "Error resend action", _request[ "Action" ], error );
+						reject( "Error resend action" + _request[ "Action" ] + error );
 					}
 
-				}, 1000 );
+					this._errorBitsByInterval++;
+					if( this.debug ) console.log( "resend ActionID_" + actionID, _request[ "Action" ] );
+					return;
+				}
+
+				clearTimeout( request[ "timeOutHandler" ] );
+				this.removeRequest( actionID );
+				this.events.removeAllListeners( actionID );
+				this.events.removeAllListeners( `Action_${actionID}` );
+				if( this.debug ) console.log( "complete " + actionID, _request[ "Action" ] );
+
+
+			}, 3000 );
+
+
+			write = this._socketHandler.write( message, () => {
+				writed = true;
+			} );
 
 			if( write === false ) {
 				if( this.debug ) console.log( "Data in the sending queue" );
-				reject( false );
+				reject( "Data in the sending queue" );
 			}
 		} );
 	}
@@ -418,6 +475,7 @@ export class eAmi {
 
 				if( key === "ActionID" ) {
 					dataObject[ key ] = value;
+					dataObject[ key ] = _isFinite( _toNumber( dataObject[ key ] ) ) ? _toNumber( dataObject[ key ] ) : dataObject[ key ];
 					continue;
 				}
 
@@ -435,6 +493,7 @@ export class eAmi {
 
 
 			let request = this.getRequest( dataObject.ActionID );
+
 			dataObject.Request = typeof request !== "boolean" ? request : null;
 
 			if( _isFinite( _toNumber( dataObject.ActionID ) ) )
@@ -442,21 +501,19 @@ export class eAmi {
 			else if( typeof dataObject.ActionID == "string" )
 				this.events.emit( dataObject.ActionID, dataObject );
 
-			this.removeRequest( dataObject.ActionID );
-
 			switch( typeResponse ) {
 				case "response":
-					if( this.debug ) console.log( "response", CRLF + dataObject, CRLF );
+					if( this.debug ) console.log( eAMI_EVENTS.RESPONSE, CRLF, dataObject, CRLF );
 
-					this.events.emit( "response", dataObject );
+					this.events.emit( eAMI_EVENTS.RESPONSE, dataObject );
 
 					break;
-				case "event" :
-					if( this.debug ) console.log( "event", CRLF + dataObject, CRLF );
+				case "event":
+					if( this.debug ) console.log( eAMI_EVENTS.EVENTS, CRLF, dataObject, CRLF );
 
 					if( this.excludeEvents.indexOf( dataObject.Event ) < 0 ) {
 
-						if( this._emitAllEvents ) this.events.emit( "events", dataObject );
+						if( this._emitAllEvents ) this.events.emit( eAMI_EVENTS.EVENTS, dataObject );
 
 						this.events.emit( dataObject.Event, dataObject );
 
@@ -465,10 +522,12 @@ export class eAmi {
 					break;
 
 				default:
+
 					break;
 			}
 		}
 
 		return dataObject;
 	}
+
 }

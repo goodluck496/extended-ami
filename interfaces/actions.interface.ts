@@ -2,6 +2,7 @@ export interface I_Response {
 	Event?: string
 	//ActionID for this transaction. Will be returned.
 	ActionID?: number | string
+	Response?: string
 	Request?: I_Request
 
 	[p:string]: any
