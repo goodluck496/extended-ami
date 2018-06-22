@@ -43,9 +43,10 @@ import {eAMI_EVENTS}  from "extended-ami"
 
 import {AMI_EVENTS} from "extended-ami"
  
-//events from the official documentation for asterisk https://wiki.asterisk.org/wiki/display/AST/Asterisk+14+AMI+Events
+//events from the official documentation for asterisk 
+//https://wiki.asterisk.org/wiki/display/AST/Asterisk+14+AMI+Events
 {
-	    BRIDGE_CREATE: "BridgeCreate",
+BRIDGE_CREATE: "BridgeCreate",
     BRIDGE_DESTROY: "BridgeDestroy",
     BRIDGE_ENTER: "BridgeEnter",
     BRIDGE_INFO_CHANNEL: "BridgeInfoChannel",
