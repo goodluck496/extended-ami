@@ -17,7 +17,8 @@ import {
 	DEFAULT_PORT,
 	END,
 	HEARTBEAT_INTERVAL,
-	MAX_RECONNECT_COUNT, RESEND_TIMEOUT,
+	MAX_RECONNECT_COUNT,
+	RESEND_TIMEOUT,
 } from "./constants";
 import { eAmiActions } from "./e-ami-actions";
 import { EventEmitter } from "events";
@@ -529,5 +530,4 @@ export class eAmi {
 
 		return dataObject;
 	}
-
 }
