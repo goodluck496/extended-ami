@@ -365,7 +365,6 @@ export class eAmiActions {
 			options.Action = "QueueSummary";
 
 			this.eAmi.events.once( _AMI_EVENTS.Q_SUMMARY, ( response: I_QueueSummary ) => {
-				console.log("resolve")
 				resolve( response )
 			} );
 
