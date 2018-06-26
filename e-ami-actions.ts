@@ -386,6 +386,11 @@ export class eAmiActions {
 			options.ActionID = new Date().getTime();
 
 			this.eAmi.events.once( _AMI_EVENTS.STATUS, ( response: I_Status ) => resolve( response ) );
+			this.eAmi.events.once( `Action_${options.ActionID}`, ( response: I_Response ) => {
+				if(!_isUndefined(response.Response)){
+					if(response.Response.toLowerCase() == "error") reject(response);
+				}
+			} );
 
 			try {
 
