@@ -10,9 +10,9 @@ export interface I_Status {
 	ConnectedLineNum: string            // null
 	ConnectedLineName: string           // null
 	Language: string                    //'ru',
-	AccountCode: string                 // ,
+	AccountCode: number                 // ,
 	Context: string                     //'menuivr',
-	Exten: string                       // null,
+	Exten: number                       // null,
 	Priority: string                    // 8
 	Uniqueid: string                    // 1527247624.556805',
 	Linkedid: string                    // 1527247624.556805',

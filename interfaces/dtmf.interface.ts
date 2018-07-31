@@ -7,9 +7,9 @@ export interface I_DTMFBegin {
 	CallerIDName: string
 	ConnectedLineNum: number
 	ConnectedLineName: string
-	AccountCode: string
+	AccountCode: number
 	Context: string
-	Exten: string
+	Exten: number
 	Priority: number
 	Uniqueid: number
 	Linkedid: number
@@ -26,9 +26,9 @@ export interface I_DTMFEnd {
 	CallerIDName: string
 	ConnectedLineNum: number
 	ConnectedLineName: string
-	AccountCode: string
+	AccountCode: number
 	Context: string
-	Exten: string
+	Exten: number
 	Priority: number
 	Uniqueid: number
 	Linkedid: number

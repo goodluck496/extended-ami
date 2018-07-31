@@ -10,9 +10,9 @@ export interface I_NewChannel {
 	ConnectedLineNum: number    // null
 	ConnectedLineName: string   // null',
 	Language: string            //'en',
-	AccountCode: string         // null
+	AccountCode: number         // null
 	Context: string             //'callcenter',
-	Exten: string               // 89*****4387
+	Exten: number               // 89*****4387
 	Priority: number            // 1
 	Uniqueid: number            // 1527247326.556790
 	Linkedid: number            // 1527247326.556790
@@ -30,9 +30,9 @@ export interface I_NewState {
 	ConnectedLineNum: number    // null
 	ConnectedLineName: string   // null',
 	Language: string            //'en',
-	AccountCode: string         // null
+	AccountCode: number         // null
 	Context: string             //'callcenter',
-	Exten: string               // 89*****4387
+	Exten: number               // 89*****4387
 	Priority: number            // 1
 	Uniqueid: number            // 1527247326.556790
 	Linkedid: number            // 1527247326.556790
@@ -50,9 +50,9 @@ export interface I_NewConnectedLine {
 	ConnectedLineNum: number    // null
 	ConnectedLineName: string   // null',
 	Language: string            //'en',
-	AccountCode: string         // null
+	AccountCode: number         // null
 	Context: string             //'callcenter',
-	Exten: string               // 89*****4387
+	Exten: number               // 89*****4387
 	Priority: number            // 1
 	Uniqueid: number            // 1527247326.556790
 	Linkedid: number            // 1527247326.556790
@@ -68,9 +68,9 @@ export interface I_NewExten {
 	CallerIDName: string        //'110 test',
 	ConnectedLineNum: number    // null
 	ConnectedLineName: string   // null',
-	AccountCode: string         // null
+	AccountCode: number         // null
 	Context: string             //'callcenter',
-	Exten: string               // 89*****4387
+	Exten: number               // 89*****4387
 	Priority: number            // 1
 	Uniqueid: number            // 1527247326.556790
 	Linkedid: number            // 1527247326.556790

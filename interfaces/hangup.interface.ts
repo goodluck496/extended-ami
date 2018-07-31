@@ -9,9 +9,9 @@ export interface I_HangupRequest {
 	ConnectedLineNum: number    // 110
 	ConnectedLineName: string   //'110 test',
 	Language: string            //'en',
-	AccountCode: string         // null,
+	AccountCode: number         // null,
 	Context: string             //'callcenter',
-	Exten: string               // 89*****4387
+	Exten: number               // 89*****4387
 	Priority: number            // 1
 	Uniqueid: number            // 1527245623.556767
 	Linkedid: number            // 1527245623.556766
@@ -28,9 +28,9 @@ export interface I_Hangup {
 	ConnectedLineNum: number    // 110
 	ConnectedLineName: string   //'110 test',
 	Language: string            //'en',
-	AccountCode: string         // null,
+	AccountCode: number         // null,
 	Context: string             //'callcenter',
-	Exten: string               // 89*****4387
+	Exten: number               // 89*****4387
 	Priority: number            // 1
 	Uniqueid: number            // 1527245623.556767
 	Linkedid: number            // 1527245623.556766

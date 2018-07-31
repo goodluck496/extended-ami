@@ -8,9 +8,9 @@ export interface I_DialBegin {
 	ConnectedLineNum: number        // 110
 	ConnectedLineName: string       //'110 test'
 	Language: string                //'en'
-	AccountCode: string             // null
+	AccountCode: number             // null
 	Context: string                 // 'callcenter'
-	Exten: string                   // 1877
+	Exten: number                   // 1877
 	Priority: number                // 3
 	Uniqueid: number                // 1528262325.580184
 	Linkedid: number                // 1528262325.580183
@@ -41,9 +41,9 @@ export interface I_DialEnd {
 	ConnectedLineNum: number        // 110
 	ConnectedLineName: string       //'110 test'
 	Language: string                //'en'
-	AccountCode: string             // null
+	AccountCode: number             // null
 	Context: string                 // 'callcenter'
-	Exten: string                   // 1877
+	Exten: number                   // 1877
 	Priority: number                // 3
 	Uniqueid: number                // 1528262325.580184
 	Linkedid: number                // 1528262325.580183
@@ -74,9 +74,9 @@ export interface I_DialState {
 	ConnectedLineNum: number        // 110
 	ConnectedLineName: string       //'110 test'
 	Language: string                //'en'
-	AccountCode: string             // null
+	AccountCode: number             // null
 	Context: string                 // 'callcenter'
-	Exten: string                   // 1877
+	Exten: number                   // 1877
 	Priority: number                // 3
 	Uniqueid: number                // 1528262325.580184
 	Linkedid: number                // 1528262325.580183

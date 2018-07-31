@@ -53,7 +53,10 @@ export class eAmiActions {
 
 			try {
 
-				await this.eAmi.action<I_ActionBridgeInfo, I_BridgeInfoChannel>( options );
+				let response = await this.eAmi.action<I_ActionBridgeInfo, I_Response>( options );
+				if(!_isUndefined(response.Response)){
+					if(response.Response.toLowerCase() == "error") reject(response);
+				}
 
 			} catch( error ) {
 				reject( error );
@@ -89,7 +92,10 @@ export class eAmiActions {
 
 			try {
 
-				await this.eAmi.action<I_ActionBridgeList, I_BridgeListComplete>( options );
+				let response = await this.eAmi.action<I_ActionBridgeList, I_Response>( options );
+				if(!_isUndefined(response.Response)){
+					if(response.Response.toLowerCase() == "error") reject(response);
+				}
 
 			} catch( error ) {
 				reject( error );
@@ -121,7 +127,10 @@ export class eAmiActions {
 
 			try {
 
-				await this.eAmi.action<I_ActionCoreShowChannels, I_CoreShowChannelsComplete>( options );
+				let response = await this.eAmi.action<I_ActionCoreShowChannels, I_Response>( options );
+				if(!_isUndefined(response.Response)){
+					if(response.Response.toLowerCase() == "error") reject(response);
+				}
 
 			} catch( error ) {
 				reject( error );
@@ -149,7 +158,10 @@ export class eAmiActions {
 
 			try {
 
-				await this.eAmi.action<I_ActionHangup, I_Response>( options );
+				let response = await this.eAmi.action<I_ActionHangup, I_Response>( options );
+				if(!_isUndefined(response.Response)){
+					if(response.Response.toLowerCase() == "error") reject(response);
+				}
 
 			} catch( error ) {
 				reject( error );
@@ -185,19 +197,17 @@ export class eAmiActions {
 		return new Promise( async ( resolve, reject ) => {
 			let actionId = new Date().getTime();
 
-			this.eAmi.events.once( `Action_${actionId}`, ( response ) => {
-				if( this.eAmi.debug ) console.log( "logout-response", response );
-				if( _isUndefined( response.Response ) ) reject( false );
-				if( response.Response == "Goodbye" ) resolve( true );
-				else reject( false );
-			} );
-
 			try {
 
-				await this.eAmi.action<I_ActionLogout, I_Response>( {
+				let response = await this.eAmi.action<I_ActionLogout, I_Response>( {
 					Action: "Logoff",
 					ActionID: actionId,
 				} );
+
+				if( this.eAmi.debug ) console.log( "logout-response", response );
+				if( _isUndefined( response.Response ) ) reject( response );
+				if( response.Response == "Goodbye" ) resolve( true );
+				else reject( response );
 
 			} catch( error ) {
 				reject( error );
@@ -225,7 +235,10 @@ export class eAmiActions {
 
 			try {
 
-				await this.eAmi.action<I_ActionOriginate, I_OriginateResponse>( options );
+				let response = await this.eAmi.action<I_ActionOriginate, I_Response>( options );
+				if(!_isUndefined(response.Response)){
+					if(response.Response.toLowerCase() == "error") reject(response);
+				}
 
 			} catch( error ) {
 				reject( error );
@@ -266,7 +279,10 @@ export class eAmiActions {
 
 			try {
 
-				await this.eAmi.action<I_ActionQueueAdd, I_QueueMemberAdded>( options );
+				let response = await this.eAmi.action<I_ActionQueueAdd, I_Response>( options );
+				if(!_isUndefined(response.Response)){
+					if(response.Response.toLowerCase() == "error") reject(response);
+				}
 
 			} catch( error ) {
 				reject( error );
@@ -284,7 +300,11 @@ export class eAmiActions {
 
 			try {
 
-				await this.eAmi.action<I_ActionQueueRemove, I_QueueMemberRemoved>( options );
+				let response = await this.eAmi.action<I_ActionQueueRemove, I_Response>( options );
+				if(!_isUndefined(response.Response)){
+					if(response.Response.toLowerCase() == "error") reject(response);
+				}
+
 
 			} catch( error ) {
 				reject( error );
@@ -302,7 +322,10 @@ export class eAmiActions {
 
 			try {
 
-				await this.eAmi.action<I_ActionQueuePenalty, I_QueueMemberPenalty>( options );
+				let response = await this.eAmi.action<I_ActionQueuePenalty, I_Response>( options );
+				if(!_isUndefined(response.Response)){
+					if(response.Response.toLowerCase() == "error") reject(response);
+				}
 
 			} catch( error ) {
 				reject( error );
@@ -320,7 +343,10 @@ export class eAmiActions {
 
 			try {
 
-				await this.eAmi.action<I_ActionQueuePause, I_QueueMemberPause>( options );
+				let response = await this.eAmi.action<I_ActionQueuePause, I_Response>( options );
+				if(!_isUndefined(response.Response)){
+					if(response.Response.toLowerCase() == "error") reject(response);
+				}
 
 			} catch( error ) {
 				reject( error );
@@ -334,26 +360,29 @@ export class eAmiActions {
 
 			options.Action = "QueueStatus";
 
-			let summary: I_QueueSummary = await this.QueueSummary( { Queue: options.Queue } ),
-				countMembers: number = summary.Available + summary.Callers + summary.LoggedIn,
-				members: I_QueueMember[] = [];
+			try{
 
-			this.eAmi.events.on( _AMI_EVENTS.Q_MEMBER, ( response: I_QueueMember ) => {
-				members.push( response );
+				let summary: I_QueueSummary = await this.QueueSummary( { Queue: options.Queue } ),
+					countMembers: number = summary.Available + summary.Callers + summary.LoggedIn,
+					members: I_QueueMember[] = [];
 
-				if( members.length == countMembers ) {
-					this.eAmi.events.removeAllListeners( _AMI_EVENTS.Q_MEMBER );
-					resolve( members );
-				}
-			} );
+				this.eAmi.events.on( _AMI_EVENTS.Q_MEMBER, ( response: I_QueueMember ) => {
+					members.push( response );
 
-			try {
+					if( members.length == countMembers ) {
+						this.eAmi.events.removeAllListeners( _AMI_EVENTS.Q_MEMBER );
+						resolve( members );
+					}
+				} );
 
 				let response = await this.eAmi.action<I_ActionQueueStatus, I_QueueParams>( options );
-				this.eAmi.events.emit( AMI_EVENTS.Q_PARAMS, response );
-
-			} catch( error ) {
-				reject( error );
+				if(!_isUndefined(response["Response"])){
+					if(response["Response"].toLowerCase() == "error") reject(response);
+				} else {
+					this.eAmi.events.emit( AMI_EVENTS.Q_PARAMS, response );
+				}
+			} catch(error) {
+				reject(error)
 			}
 		} );
 	}
@@ -370,7 +399,10 @@ export class eAmiActions {
 
 			try {
 
-				await this.eAmi.action<I_ActionQueueSummary, I_Response>( options );
+				let response = await this.eAmi.action<I_ActionQueueSummary, I_Response>( options );
+				if(!_isUndefined(response.Response)){
+					if(response.Response.toLowerCase() == "error") reject(response);
+				}
 
 			} catch( error ) {
 				reject( error );
@@ -386,15 +418,12 @@ export class eAmiActions {
 			options.ActionID = new Date().getTime();
 
 			this.eAmi.events.once( _AMI_EVENTS.STATUS, ( response: I_Status ) => resolve( response ) );
-			this.eAmi.events.once( `Action_${options.ActionID}`, ( response: I_Response ) => {
+
+			try {
+				let response = await this.eAmi.action<I_ActionStatus, I_Response>( options );
 				if(!_isUndefined(response.Response)){
 					if(response.Response.toLowerCase() == "error") reject(response);
 				}
-			} );
-
-			try {
-
-				await this.eAmi.action<I_ActionStatus, I_Response>( options );
 
 			} catch( error ) {
 				reject( error );

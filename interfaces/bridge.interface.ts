@@ -36,9 +36,9 @@ export interface I_BridgeEnter {
 	ConnectedLineNum: number        //89*******53,        null
 	ConnectedLineName: string       //null,
 	Language: string                //'ru',
-	AccountCode: string             //'',
+	AccountCode: number             //'',
 	Context: string                 //'callcenter',         menuivr
-	Exten: string                   // null,
+	Exten: number                   // null,
 	Priority: number                // 1,                  8
 	Uniqueid: number                //'1527245698.556770',  1527245675.556769
 	//Uniqueid of the oldest channel associated with this channel.
@@ -100,14 +100,14 @@ export interface I_BridgeLeave {
 	ConnectedLineNum: number        //89******53,        null
 	ConnectedLineName: string       //null,
 	Language: string                //'ru',
-	AccountCode: string             //'',
+	AccountCode: number             //'',
 	Context: string                 //'callcenter',         menuivr
-	Exten: string                   // null,
+	Exten: number                   // null,
 	Priority: number                // 1,                  8
 	Uniqueid: number                //'1527245698.556770',  1527245675.556769
 	//Uniqueid of the oldest channel associated with this channel.
 	Linkedid: number                //'1527245675.556769'   1527245675.556769
-	SwapUniqueid: number
+	SwapUniqueid?: number
 }
 
 export interface I_BridgeDestroy {
@@ -186,9 +186,9 @@ export interface I_BridgeInfoChannel {
 	ConnectedLineNum: number        //89******353,        null
 	ConnectedLineName: string       //null,
 	Language: string                //'ru',
-	AccountCode: string             //'',
+	AccountCode: number             //'',
 	Context: string                 //'callcenter',         menuivr
-	Exten: string                   // null,
+	Exten: number                   // null,
 	Priority: number                // 1,                  8
 	Uniqueid: number                //'1527245698.556770',  1527245675.556769
 	//Uniqueid of the oldest channel associated with this channel.

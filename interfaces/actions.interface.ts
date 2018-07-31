@@ -111,7 +111,7 @@ export interface I_ActionOriginate {
 	//Channel name to call
 	Channel: string
 	//Extension to use (requires Context and Priority)
-	Exten: string
+	Exten: number
 	//Context to use (requires Exten and Priority)
 	Context: string
 	//Priority to use (requires Exten and Context)
