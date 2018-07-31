@@ -3,7 +3,7 @@
   "description": "Advanced manager for connecting to Asterisk",
   "author": "Kalinin Nikita",
   "license": "MIT",
-  "version": "1.1.2",
+  "version": "1.1.3",
   "main": "./dist/e-ami.js",
   "typings": "./e-ami.d.ts",
   "engines": {
