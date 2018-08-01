@@ -160,7 +160,7 @@ declare namespace extended_ami {
 		//Channel name to call
 		Channel: string
 		//Extension to use (requires Context and Priority)
-		Exten: string
+		Exten: number
 		//Context to use (requires Exten and Priority)
 		Context: string
 		//Priority to use (requires Exten and Context)
@@ -380,9 +380,9 @@ declare namespace extended_ami {
 		// Number of channels in the bridge
 		BridgeNumChannels: number       //1,                  2
 		//The video source mode for the bridge.
-		BridgeVideoSourceMode: "talker" | "single" | string   //'none',
+		BridgeVideoSourceMode?: "talker" | "single" | string   //'none',
 		//If there is a video source for the bridge, the unique ID of the channel that is the video source.
-		BridgeVideoSource: string
+		BridgeVideoSource?: string
 		Channel: string                 //'SIP/107-00042237',   SIP/mtt-out-00042236
 		//A numeric code for the channel's current state, related to ChannelStateDesc
 		ChannelState: number            //6,
@@ -403,14 +403,14 @@ declare namespace extended_ami {
 		ConnectedLineNum: number        //89*******53,        null
 		ConnectedLineName: string       //null,
 		Language: string                //'ru',
-		AccountCode: string             //'',
+		AccountCode: number             //'',
 		Context: string                 //'callcenter',         menuivr
-		Exten: string                   // null,
+		Exten: number                   // null,
 		Priority: number                // 1,                  8
 		Uniqueid: number                //'1527245698.556770',  1527245675.556769
 		//Uniqueid of the oldest channel associated with this channel.
 		Linkedid: number                //'1527245675.556769'   1527245675.556769
-		SwapUniqueid: number
+		SwapUniqueid?: number
 	}
 
 	export interface I_BridgeCreate {
@@ -424,9 +424,9 @@ declare namespace extended_ami {
 		BridgeName: string
 		BridgeNumChannels: number
 		//The video source mode for the bridge.
-		BridgeVideoSourceMode: "talker" | "single" | string   //'none',
+		BridgeVideoSourceMode?: "talker" | "single" | string   //'none',
 		//If there is a video source for the bridge, the unique ID of the channel that is the video source.
-		BridgeVideoSource: string
+		BridgeVideoSource?: string
 	}
 
 	export interface I_BridgeLeave {
@@ -444,9 +444,9 @@ declare namespace extended_ami {
 		// Number of channels in the bridge
 		BridgeNumChannels: number       //1,                  2
 		//The video source mode for the bridge.
-		BridgeVideoSourceMode: "talker" | "single" | string   //'none',
+		BridgeVideoSourceMode?: "talker" | "single" | string   //'none',
 		//If there is a video source for the bridge, the unique ID of the channel that is the video source.
-		BridgeVideoSource: string
+		BridgeVideoSource?: string
 		Channel: string                 //'SIP/107-00042237',   SIP/mtt-out-00042236
 		//A numeric code for the channel's current state, related to ChannelStateDesc
 		ChannelState: number            //6,
@@ -467,14 +467,14 @@ declare namespace extended_ami {
 		ConnectedLineNum: number        //89******53,        null
 		ConnectedLineName: string       //null,
 		Language: string                //'ru',
-		AccountCode: string             //'',
+		AccountCode: number             //'',
 		Context: string                 //'callcenter',         menuivr
-		Exten: string                   // null,
+		Exten: number                   // null,
 		Priority: number                // 1,                  8
 		Uniqueid: number                //'1527245698.556770',  1527245675.556769
 		//Uniqueid of the oldest channel associated with this channel.
 		Linkedid: number                //'1527245675.556769'   1527245675.556769
-		SwapUniqueid: number
+		SwapUniqueid?: number
 	}
 
 	export interface I_BridgeDestroy {
@@ -488,9 +488,9 @@ declare namespace extended_ami {
 		BridgeName: string
 		BridgeNumChannels: number
 		//The video source mode for the bridge.
-		BridgeVideoSourceMode: "talker" | "single" | string   //'none',
+		BridgeVideoSourceMode?: "talker" | "single" | string   //'none',
 		//If there is a video source for the bridge, the unique ID of the channel that is the video source.
-		BridgeVideoSource: string
+		BridgeVideoSource?: string
 	}
 
 	export interface I_BridgeMerge {
@@ -504,16 +504,16 @@ declare namespace extended_ami {
 		ToBridgeName: string
 		//Number of channels in the bridge
 		ToBridgeNumChannels: number
-		ToBridgeVideoSourceMode: string
-		ToBridgeVideoSource: string
+		ToBridgeVideoSourceMode?: string
+		ToBridgeVideoSource?: string
 		FromBridgeUniqueid: string
 		FromBridgeType: string
 		FromBridgeTechnology: string
 		FromBridgeCreator: string
 		FromBridgeName: string
 		FromBridgeNumChannels: number
-		FromBridgeVideoSourceMode: string
-		FromBridgeVideoSource: string
+		FromBridgeVideoSourceMode?: string
+		FromBridgeVideoSource?: string
 	}
 
 	export interface I_BridgeInfoComplete {
@@ -527,8 +527,8 @@ declare namespace extended_ami {
 		BridgeName: string
 		//Number of channels in the bridge
 		BridgeNumChannels: number
-		BridgeVideoSourceMode: string
-		BridgeVideoSource: string
+		BridgeVideoSourceMode?: string
+		BridgeVideoSource?: string
 	}
 
 	export interface I_BridgeInfoChannel {
@@ -553,9 +553,9 @@ declare namespace extended_ami {
 		ConnectedLineNum: number        //89******353,        null
 		ConnectedLineName: string       //null,
 		Language: string                //'ru',
-		AccountCode: string             //'',
+		AccountCode: number             //'',
 		Context: string                 //'callcenter',         menuivr
-		Exten: string                   // null,
+		Exten: number                   // null,
 		Priority: number                // 1,                  8
 		Uniqueid: number                //'1527245698.556770',  1527245675.556769
 		//Uniqueid of the oldest channel associated with this channel.
@@ -579,7 +579,7 @@ declare namespace extended_ami {
 		BridgeCreator: string 			//null,
 		BridgeName: string 				//null,
 		BridgeNumChannels: number 		//2,
-		BridgeVideoSourceMode: string 	//'none',
+		BridgeVideoSourceMode?: string 	//'none',
 	}
 
 
@@ -637,9 +637,9 @@ declare namespace extended_ami {
 		ConnectedLineNum: number        // 110
 		ConnectedLineName: string       //'110 test'
 		Language: string                //'en'
-		AccountCode: string             // null
+		AccountCode: number             // null
 		Context: string                 // 'callcenter'
-		Exten: string                   // 1877
+		Exten: number                   // 1877
 		Priority: number                // 3
 		Uniqueid: number                // 1528262325.580184
 		Linkedid: number                // 1528262325.580183
@@ -652,9 +652,9 @@ declare namespace extended_ami {
 		DestConnectedLineNum: number    // 89*****4387
 		DestConnectedLineName: string   // null
 		DestLanguage: string            //'en'
-		DestAccountCode: string         // null
+		DestAccountCode: number         // null
 		DestContext: string             //'callcenter'
-		DestExten: string               // 1877
+		DestExten: number               // 1877
 		DestPriority: number            // 1
 		DestUniqueid: number            // 1528262348.580187
 		DestLinkedid: number            // 1528262325.580183'
@@ -671,9 +671,9 @@ declare namespace extended_ami {
 		ConnectedLineNum: number        // 110
 		ConnectedLineName: string       //'110 test'
 		Language: string                //'en'
-		AccountCode: string             // null
+		AccountCode: number             // null
 		Context: string                 // 'callcenter'
-		Exten: string                   // 1877
+		Exten: number                   // 1877
 		Priority: number                // 3
 		Uniqueid: number                // 1528262325.580184
 		Linkedid: number                // 1528262325.580183
@@ -686,9 +686,9 @@ declare namespace extended_ami {
 		DestConnectedLineNum: number    // 89*****4387
 		DestConnectedLineName: string   // null
 		DestLanguage: string            //'en'
-		DestAccountCode: string         // null
+		DestAccountCode: number         // null
 		DestContext: string             //'callcenter'
-		DestExten: string               // 1877
+		DestExten: number               // 1877
 		DestPriority: number            // 1
 		DestUniqueid: number            // 1528262348.580187
 		DestLinkedid: number            // 1528262325.580183'
@@ -705,9 +705,9 @@ declare namespace extended_ami {
 		ConnectedLineNum: number        // 110
 		ConnectedLineName: string       //'110 test'
 		Language: string                //'en'
-		AccountCode: string             // null
+		AccountCode: number             // null
 		Context: string                 // 'callcenter'
-		Exten: string                   // 1877
+		Exten: number                   // 1877
 		Priority: number                // 3
 		Uniqueid: number                // 1528262325.580184
 		Linkedid: number                // 1528262325.580183
@@ -720,9 +720,9 @@ declare namespace extended_ami {
 		DestConnectedLineNum: number    // 89*****4387
 		DestConnectedLineName: string   // null
 		DestLanguage: string            //'en'
-		DestAccountCode: string         // null
+		DestAccountCode: number         // null
 		DestContext: string             //'callcenter'
-		DestExten: string               // 1877
+		DestExten: number               // 1877
 		DestPriority: number            // 1
 		DestUniqueid: number            // 1528262348.580187
 		DestLinkedid: number            // 1528262325.580183'
@@ -742,9 +742,9 @@ declare namespace extended_ami {
 		CallerIDName: string
 		ConnectedLineNum: number
 		ConnectedLineName: string
-		AccountCode: string
+		AccountCode: number
 		Context: string
-		Exten: string
+		Exten: number
 		Priority: number
 		Uniqueid: number
 		Linkedid: number
@@ -762,9 +762,9 @@ declare namespace extended_ami {
 		CallerIDName: string
 		ConnectedLineNum: number
 		ConnectedLineName: string
-		AccountCode: string
+		AccountCode: number
 		Context: string
-		Exten: string
+		Exten: number
 		Priority: number
 		Uniqueid: number
 		Linkedid: number
@@ -790,9 +790,9 @@ declare namespace extended_ami {
 		ConnectedLineNum: number    // 110
 		ConnectedLineName: string   //'110 test',
 		Language: string            //'en',
-		AccountCode: string         // null,
+		AccountCode: number         // null,
 		Context: string             //'callcenter',
-		Exten: string               // 89*****4387
+		Exten: number               // 89*****4387
 		Priority: number            // 1
 		Uniqueid: number            // 1527245623.556767
 		Linkedid: number            // 1527245623.556766
@@ -809,9 +809,9 @@ declare namespace extended_ami {
 		ConnectedLineNum: number    // 110
 		ConnectedLineName: string   //'110 test',
 		Language: string            //'en',
-		AccountCode: string         // null,
+		AccountCode: number         // null,
 		Context: string             //'callcenter',
-		Exten: string               // 89*****4387
+		Exten: number               // 89*****4387
 		Priority: number            // 1
 		Uniqueid: number            // 1527245623.556767
 		Linkedid: number            // 1527245623.556766
@@ -839,9 +839,9 @@ declare namespace extended_ami {
 		ConnectedLineNum: number    // null
 		ConnectedLineName: string   // null',
 		Language: string            //'en',
-		AccountCode: string         // null
+		AccountCode: number         // null
 		Context: string             //'callcenter',
-		Exten: string               // 89*****4387
+		Exten: number               // 89*****4387
 		Priority: number            // 1
 		Uniqueid: number            // 1527247326.556790
 		Linkedid: number            // 1527247326.556790
@@ -859,9 +859,9 @@ declare namespace extended_ami {
 		ConnectedLineNum: number    // null
 		ConnectedLineName: string   // null',
 		Language: string            //'en',
-		AccountCode: string         // null
+		AccountCode: number         // null
 		Context: string             //'callcenter',
-		Exten: string               // 89*****4387
+		Exten: number               // 89*****4387
 		Priority: number            // 1
 		Uniqueid: number            // 1527247326.556790
 		Linkedid: number            // 1527247326.556790
@@ -879,9 +879,9 @@ declare namespace extended_ami {
 		ConnectedLineNum: number    // null
 		ConnectedLineName: string   // null',
 		Language: string            //'en',
-		AccountCode: string         // null
+		AccountCode: number         // null
 		Context: string             //'callcenter',
-		Exten: string               // 89*****4387
+		Exten: number               // 89*****4387
 		Priority: number            // 1
 		Uniqueid: number            // 1527247326.556790
 		Linkedid: number            // 1527247326.556790
@@ -897,9 +897,9 @@ declare namespace extended_ami {
 		CallerIDName: string        //'110 test',
 		ConnectedLineNum: number    // null
 		ConnectedLineName: string   // null',
-		AccountCode: string         // null
+		AccountCode: number         // null
 		Context: string             //'callcenter',
-		Exten: string               // 89*****4387
+		Exten: number               // 89*****4387
 		Priority: number            // 1
 		Uniqueid: number            // 1527247326.556790
 		Linkedid: number            // 1527247326.556790
@@ -921,7 +921,7 @@ declare namespace extended_ami {
 		Response: string
 		Channel: string
 		Context: string
-		Exten: string
+		Exten: number
 		Application: string
 		Data: string
 		Reason: string
@@ -1153,7 +1153,7 @@ declare namespace extended_ami {
 		Language: string 					//'ru',
 		AccountCode: number 				//0,
 		Context: string 					//'callcenter',
-		Exten: string 						//891*****387,
+		Exten: number 						//891*****387,
 		Priority: number 					//1,
 		Uniqueid: number 					//1528531544.589918,
 		Linkedid: number 					//1528531521.589916,
@@ -1206,7 +1206,7 @@ declare namespace extended_ami {
 		Language: string 					//'ru',
 		AccountCode: number 				//0,
 		Context: string 					//'callcenter',
-		Exten: string 						//891*****387,
+		Exten: number 						//891*****387,
 		Priority: number 					//3,
 		Uniqueid: number 					//1528532694.589938,
 		Linkedid: number 					//1528532694.589938,
@@ -1262,9 +1262,9 @@ declare namespace extended_ami {
 		ConnectedLineNum: string            // null
 		ConnectedLineName: string           // null
 		Language: string                    //'ru',
-		AccountCode: string                 // ,
+		AccountCode: number                 // ,
 		Context: string                     //'menuivr',
-		Exten: string                       // null,
+		Exten: number                       // null,
 		Priority: string                    // 8
 		Uniqueid: string                    // 1527247624.556805',
 		Linkedid: string                    // 1527247624.556805',
@@ -1314,9 +1314,9 @@ declare namespace extended_ami {
 		CallerIDName: string
 		ConnectedLineNum: number
 		ConnectedLineName: string
-		AccountCode: string
+		AccountCode: number
 		Context: string
-		Exten: string
+		Exten: number
 		Priority: number
 		Uniqueid: number
 		Linkedid: number

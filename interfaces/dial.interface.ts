@@ -23,9 +23,9 @@ export interface I_DialBegin {
 	DestConnectedLineNum: number    // 89*****4387
 	DestConnectedLineName: string   // null
 	DestLanguage: string            //'en'
-	DestAccountCode: string         // null
+	DestAccountCode: number         // null
 	DestContext: string             //'callcenter'
-	DestExten: string               // 1877
+	DestExten: number               // 1877
 	DestPriority: number            // 1
 	DestUniqueid: number            // 1528262348.580187
 	DestLinkedid: number            // 1528262325.580183'
@@ -56,9 +56,9 @@ export interface I_DialEnd {
 	DestConnectedLineNum: number    // 89*****4387
 	DestConnectedLineName: string   // null
 	DestLanguage: string            //'en'
-	DestAccountCode: string         // null
+	DestAccountCode: number         // null
 	DestContext: string             //'callcenter'
-	DestExten: string               // 1877
+	DestExten: number               // 1877
 	DestPriority: number            // 1
 	DestUniqueid: number            // 1528262348.580187
 	DestLinkedid: number            // 1528262325.580183'
@@ -89,9 +89,9 @@ export interface I_DialState {
 	DestConnectedLineNum: number    // 89*****4387
 	DestConnectedLineName: string   // null
 	DestLanguage: string            //'en'
-	DestAccountCode: string         // null
+	DestAccountCode: number         // null
 	DestContext: string             //'callcenter'
-	DestExten: string               // 1877
+	DestExten: number               // 1877
 	DestPriority: number            // 1
 	DestUniqueid: number            // 1528262348.580187
 	DestLinkedid: number            // 1528262325.580183'
