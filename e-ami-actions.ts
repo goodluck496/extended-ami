@@ -34,6 +34,7 @@ import { I_DualHangup, I_Hangup, I_HangupRequest } from "./interfaces/hangup.int
 import { I_BridgeInfoChannel, I_BridgeListComplete, I_BridgeListItem } from "./interfaces/bridge.interface";
 import { I_CoreShowChannel, I_CoreShowChannelsComplete } from "./interfaces/core-interface";
 import { I_OriginateResponse } from "./interfaces/originate.interface";
+import { removeListener } from "cluster";
 
 export class eAmiActions {
 
@@ -49,17 +50,29 @@ export class eAmiActions {
 			options.Action = "BridgeInfo";
 			options.ActionID = new Date().getTime();
 
-			this.eAmi.events.on( _AMI_EVENTS.BRIDGE_INFO_CHANNEL, ( response: I_BridgeInfoChannel ) => resolve( response ) );
+			let removeListener = () => {
+					this.eAmi.events.removeListener(_AMI_EVENTS.BRIDGE_INFO_CHANNEL, onBRIDGE_INFO_CHANNEL );
+				},
+				onBRIDGE_INFO_CHANNEL = (response: I_BridgeInfoChannel) => {
+					resolve( response );
+					removeListener();
+				};
+
+			this.eAmi.events.once( _AMI_EVENTS.BRIDGE_INFO_CHANNEL, onBRIDGE_INFO_CHANNEL );
 
 			try {
 
 				let response = await this.eAmi.action<I_ActionBridgeInfo, I_Response>( options );
 				if(!_isUndefined(response.Response)){
-					if(response.Response.toLowerCase() == "error") reject(response);
+					if(response.Response.toLowerCase() == "error") {
+						reject(response);
+						removeListener();
+					}
 				}
 
 			} catch( error ) {
 				reject( error );
+				removeListener();
 			}
 
 
@@ -74,31 +87,46 @@ export class eAmiActions {
 			options.ActionID = new Date().getTime();
 
 			let bridgeItemsCount: number = 0,
-				bridgeItems: I_BridgeListItem[] = [];
+				bridgeItems: I_BridgeListItem[] = [],
+				removeListener = () => {
+					this.eAmi.events.removeListener( _AMI_EVENTS.BRIDGE_LIST_COMPLETE, onBRIDGE_LIST_COMPLETE );
+					this.eAmi.events.removeListener( _AMI_EVENTS.BRIDGE_LIST_ITEM, onBRIDGE_LIST_ITEM );
+				},
+				onBRIDGE_LIST_ITEM = (response: I_BridgeListItem) => {
+					bridgeItems.push( response );
 
-			this.eAmi.events.once( _AMI_EVENTS.BRIDGE_LIST_COMPLETE, ( response: I_BridgeListComplete ) => {
-				bridgeItemsCount = response.ListItems;
+					if( bridgeItemsCount == bridgeItems.length ) {
+						resolve( bridgeItems );
+						removeListener();
+					}
 
-				if( bridgeItemsCount == bridgeItems.length ) resolve( bridgeItems );
+				},
+				onBRIDGE_LIST_COMPLETE = (response: I_BridgeListComplete) => {
+					bridgeItemsCount = response.ListItems;
 
-			} );
+					if( bridgeItemsCount == bridgeItems.length ) {
+						resolve( bridgeItems );
+						removeListener();
+					}
+				};
 
-			this.eAmi.events.on( _AMI_EVENTS.BRIDGE_LIST_ITEM, ( response: I_BridgeListItem ) => {
-				bridgeItems.push( response );
 
-				if( bridgeItemsCount == bridgeItems.length ) resolve( bridgeItems );
-
-			} );
+			this.eAmi.events.once( _AMI_EVENTS.BRIDGE_LIST_COMPLETE, onBRIDGE_LIST_COMPLETE );
+			this.eAmi.events.on( _AMI_EVENTS.BRIDGE_LIST_ITEM, onBRIDGE_LIST_ITEM );
 
 			try {
 
 				let response = await this.eAmi.action<I_ActionBridgeList, I_Response>( options );
 				if(!_isUndefined(response.Response)){
-					if(response.Response.toLowerCase() == "error") reject(response);
+					if(response.Response.toLowerCase() == "error") {
+						reject(response);
+						removeListener();
+					}
 				}
 
 			} catch( error ) {
 				reject( error );
+				removeListener();
 			}
 		} );
 	}
@@ -110,30 +138,46 @@ export class eAmiActions {
 			options.Action = "CoreShowChannels";
 
 			let channelsCount: number = 0,
-				channels: I_CoreShowChannel[] = [];
+				channels: I_CoreShowChannel[] = [],
+				removeListener = () => {
+					this.eAmi.events.removeListener( _AMI_EVENTS.CORE_SHOW_CHANNEL, onCORE_SHOW_CHANNEL );
+					this.eAmi.events.removeListener( _AMI_EVENTS.CORE_SHOW_CHANNEL_COMPLETE, onCORE_SHOW_CHANNEL_COMPLETE );
+				},
+				onCORE_SHOW_CHANNEL = (response: I_CoreShowChannel) => {
 
-			this.eAmi.events.once( _AMI_EVENTS.CORE_SHOW_CHANNEL_COMPLETE, ( response: I_CoreShowChannelsComplete ) => {
-				channelsCount = response.ListItems;
+					channels.push( response );
 
-				if( channels.length == channelsCount ) resolve( channels );
+					if( channels.length == channelsCount ) {
+						resolve( channels );
+						removeListener();
+					}
 
-			} );
+				},
+				onCORE_SHOW_CHANNEL_COMPLETE = (response: I_CoreShowChannelsComplete) => {
+					channelsCount = response.ListItems;
 
-			this.eAmi.events.on( _AMI_EVENTS.CORE_SHOW_CHANNEL, ( response: I_CoreShowChannel ) => {
-				channels.push( response );
+					if( channels.length == channelsCount ) {
+						resolve( channels );
+						removeListener();
+					}
+				};
 
-				if( channels.length == channelsCount ) resolve( channels );
-			} );
+			this.eAmi.events.once( _AMI_EVENTS.CORE_SHOW_CHANNEL_COMPLETE, onCORE_SHOW_CHANNEL_COMPLETE );
+			this.eAmi.events.on( _AMI_EVENTS.CORE_SHOW_CHANNEL, onCORE_SHOW_CHANNEL );
 
 			try {
 
 				let response = await this.eAmi.action<I_ActionCoreShowChannels, I_Response>( options );
 				if(!_isUndefined(response.Response)){
-					if(response.Response.toLowerCase() == "error") reject(response);
+					if(response.Response.toLowerCase() == "error") {
+						reject(response);
+						removeListener();
+					}
 				}
 
 			} catch( error ) {
 				reject( error );
+				removeListener();
 			}
 		} );
 	}
@@ -144,27 +188,38 @@ export class eAmiActions {
 
 			options.Action = "Hangup";
 
-			let hangup: I_DualHangup = { hangup: null, hangupRequest: null };
+			let hangup: I_DualHangup = { hangup: null, hangupRequest: null },
+				removeListeners = () => {
+					this.eAmi.events.removeListener( _AMI_EVENTS.HANGUP, onHANGUP );
+					this.eAmi.events.removeListener( _AMI_EVENTS.HANGUP_REQUEST, onHANGUP_REQUEST );
+				},
+				onHANGUP = (h: I_Hangup) => {
+					hangup.hangup = h;
+					if( !_isNull( hangup.hangupRequest ) ) resolve( hangup );
+					removeListeners();
+				},
+				onHANGUP_REQUEST = (hr: I_HangupRequest) => {
+					hangup.hangupRequest = hr;
+					if( !_isNull( hangup.hangup ) ) resolve( hangup );
+					removeListeners();
+				};
 
-			this.eAmi.events.once( _AMI_EVENTS.HANGUP, ( h: I_Hangup ) => {
-				hangup.hangup = h;
-				if( !_isNull( hangup.hangupRequest ) ) resolve( hangup );
-			} );
-
-			this.eAmi.events.once( _AMI_EVENTS.HANGUP_REQUEST, ( hr: I_HangupRequest ) => {
-				hangup.hangupRequest = hr;
-				if( !_isNull( hangup.hangup ) ) resolve( hangup );
-			} );
+			this.eAmi.events.once( _AMI_EVENTS.HANGUP, onHANGUP );
+			this.eAmi.events.once( _AMI_EVENTS.HANGUP_REQUEST, onHANGUP_REQUEST );
 
 			try {
 
 				let response = await this.eAmi.action<I_ActionHangup, I_Response>( options );
 				if(!_isUndefined(response.Response)){
-					if(response.Response.toLowerCase() == "error") reject(response);
+					if(response.Response.toLowerCase() == "error") {
+						reject(response);
+						removeListeners();
+					}
 				}
 
 			} catch( error ) {
 				reject( error );
+				removeListeners();
 			}
 		} );
 	}
@@ -223,12 +278,18 @@ export class eAmiActions {
 			options.Action = "Originate";
 			options.ActionID = new Date().getTime();
 
-			this.eAmi.events.once( "Action_" + options.ActionID, ( response: any ) => {
-				if( _isUndefined( response.Message ) ) reject( false );
-				if( response.Message.toString().toLowerCase().indexOf( "failed" ) >= 0 ) reject( false );
+			let removeListener = () => {
+					this.eAmi.events.removeListener( "Action_" + options.ActionID, onActionID );
+				},
+				onActionID = (response: any) => {
+					if( _isUndefined( response.Message ) ) reject( false );
+					if( response.Message.toString().toLowerCase().indexOf( "failed" ) >= 0 ) reject( false );
+					resolve( true );
 
-				resolve( true );
-			} );
+					removeListener();
+				};
+
+			this.eAmi.events.once( "Action_" + options.ActionID, onActionID );
 
 			// not working
 			// this.eAmi.events.once(_AMI_EVENTS.ORIGINATE_RESPONSE, (response: I_OriginateResponse) => resolve(response));
@@ -237,11 +298,15 @@ export class eAmiActions {
 
 				let response = await this.eAmi.action<I_ActionOriginate, I_Response>( options );
 				if(!_isUndefined(response.Response)){
-					if(response.Response.toLowerCase() == "error") reject(response);
+					if(response.Response.toLowerCase() == "error") {
+						reject(response);
+						removeListener();
+					}
 				}
 
 			} catch( error ) {
 				reject( error );
+				removeListener();
 			}
 		} );
 	}
@@ -275,17 +340,29 @@ export class eAmiActions {
 
 			options.Action = "QueueAdd";
 
-			this.eAmi.events.once( _AMI_EVENTS.Q_MEMBER_ADDED, ( response: I_QueueMemberAdded ) => resolve( response ) );
+			let removeListener = () => {
+					this.eAmi.events.removeListener( _AMI_EVENTS.Q_MEMBER_ADDED, onQ_MEMBER_ADDED );
+				},
+				onQ_MEMBER_ADDED = (response: I_QueueMemberAdded ) => {
+					resolve(response);
+					removeListener();
+				};
+
+			this.eAmi.events.once( _AMI_EVENTS.Q_MEMBER_ADDED, onQ_MEMBER_ADDED );
 
 			try {
 
 				let response = await this.eAmi.action<I_ActionQueueAdd, I_Response>( options );
 				if(!_isUndefined(response.Response)){
-					if(response.Response.toLowerCase() == "error") reject(response);
+					if(response.Response.toLowerCase() == "error") {
+						reject(response);
+						removeListener();
+					}
 				}
 
 			} catch( error ) {
 				reject( error );
+				removeListener();
 			}
 		} );
 	}
@@ -296,18 +373,30 @@ export class eAmiActions {
 
 			options.Action = "QueueRemove";
 
-			this.eAmi.events.once( _AMI_EVENTS.Q_MEMBER_REMOVED, ( response: I_QueueMemberRemoved ) => resolve( response ) );
+			let removeListener = () => {
+					this.eAmi.events.removeListener( _AMI_EVENTS.Q_MEMBER_REMOVED, onQ_MEMBER_REMOVED );
+				},
+				onQ_MEMBER_REMOVED = (response: I_QueueMemberRemoved) => {
+					resolve(response);
+					removeListener();
+				};
+
+			this.eAmi.events.once( _AMI_EVENTS.Q_MEMBER_REMOVED, onQ_MEMBER_REMOVED );
 
 			try {
 
 				let response = await this.eAmi.action<I_ActionQueueRemove, I_Response>( options );
 				if(!_isUndefined(response.Response)){
-					if(response.Response.toLowerCase() == "error") reject(response);
+					if(response.Response.toLowerCase() == "error") {
+						removeListener();
+						reject(response);
+					}
 				}
 
 
 			} catch( error ) {
 				reject( error );
+				removeListener();
 			}
 		} );
 	}
@@ -318,17 +407,29 @@ export class eAmiActions {
 
 			options.Action = "QueuePenalty";
 
-			this.eAmi.events.once( _AMI_EVENTS.Q_MEMBER_PENALTY, ( response: I_QueueMemberPenalty ) => resolve( response ) );
+			let removeListener = () => {
+					this.eAmi.events.removeListener( _AMI_EVENTS.Q_MEMBER_PENALTY, onQ_MEMBER_PENALTY );
+				},
+				onQ_MEMBER_PENALTY = ( response: I_QueueMemberPenalty) => {
+					resolve( response );
+					removeListener();
+				};
+
+			this.eAmi.events.once( _AMI_EVENTS.Q_MEMBER_PENALTY, onQ_MEMBER_PENALTY );
 
 			try {
 
 				let response = await this.eAmi.action<I_ActionQueuePenalty, I_Response>( options );
 				if(!_isUndefined(response.Response)){
-					if(response.Response.toLowerCase() == "error") reject(response);
+					if(response.Response.toLowerCase() == "error") {
+						reject(response);
+						removeListener();
+					}
 				}
 
 			} catch( error ) {
 				reject( error );
+				removeListener();
 			}
 		} );
 	}
@@ -339,17 +440,29 @@ export class eAmiActions {
 
 			options.Action = "QueuePause";
 
-			this.eAmi.events.once( _AMI_EVENTS.Q_MEMBER_PAUSE, ( response: I_QueueMemberPause ) => resolve( response ) );
+			let removeListener = () => {
+					this.eAmi.events.removeListener( _AMI_EVENTS.Q_MEMBER_PAUSE, onQ_MEMBER_PAUSE );
+				},
+				onQ_MEMBER_PAUSE = (response: I_QueueMemberPause ) => {
+					resolve( response );
+					removeListener();
+				};
+
+			this.eAmi.events.once( _AMI_EVENTS.Q_MEMBER_PAUSE, onQ_MEMBER_PAUSE );
 
 			try {
 
 				let response = await this.eAmi.action<I_ActionQueuePause, I_Response>( options );
 				if(!_isUndefined(response.Response)){
-					if(response.Response.toLowerCase() == "error") reject(response);
+					if(response.Response.toLowerCase() == "error") {
+						reject(response);
+						removeListener();
+					}
 				}
 
 			} catch( error ) {
 				reject( error );
+				removeListener();
 			}
 		} );
 	}
@@ -360,29 +473,40 @@ export class eAmiActions {
 
 			options.Action = "QueueStatus";
 
-			try{
-
-				let summary: I_QueueSummary = await this.QueueSummary( { Queue: options.Queue } ),
-					countMembers: number = summary.Available + summary.Callers + summary.LoggedIn,
-					members: I_QueueMember[] = [];
-
-				this.eAmi.events.on( _AMI_EVENTS.Q_MEMBER, ( response: I_QueueMember ) => {
+			let members: I_QueueMember[] = [],
+				countMembers: number = 0,
+				removeListener = () => {
+					this.eAmi.events.removeListener(_AMI_EVENTS.Q_MEMBER, onQ_MEMBER);
+				},
+				onQ_MEMBER = ( response: I_QueueMember ) => {
 					members.push( response );
 
 					if( members.length == countMembers ) {
-						this.eAmi.events.removeAllListeners( _AMI_EVENTS.Q_MEMBER );
 						resolve( members );
+						removeListener();
 					}
-				} );
+				};
 
-				let response = await this.eAmi.action<I_ActionQueueStatus, I_QueueParams>( options );
+			try{
+
+				let summary: I_QueueSummary = await this.QueueSummary( { Queue: options.Queue } );
+				countMembers = summary.Available + summary.Callers + summary.LoggedIn;
+
+				this.eAmi.events.on( _AMI_EVENTS.Q_MEMBER, onQ_MEMBER );
+
+				let response = await this.eAmi.action<I_ActionQueueStatus, I_QueueParams>( options  );
 				if(!_isUndefined(response["Response"])){
-					if(response["Response"].toLowerCase() == "error") reject(response);
+					if(response["Response"].toLowerCase() == "error") {
+						reject(response);
+						removeListener();
+					}
 				} else {
 					this.eAmi.events.emit( AMI_EVENTS.Q_PARAMS, response );
+					removeListener();
 				}
 			} catch(error) {
-				reject(error)
+				reject(error);
+				removeListener();
 			}
 		} );
 	}
@@ -393,19 +517,29 @@ export class eAmiActions {
 
 			options.Action = "QueueSummary";
 
-			this.eAmi.events.once( _AMI_EVENTS.Q_SUMMARY, ( response: I_QueueSummary ) => {
-				resolve( response )
-			} );
+			let removeListener = () => {
+					this.eAmi.events.removeListener( _AMI_EVENTS.Q_SUMMARY, onQ_SUMMARY );
+				},
+				onQ_SUMMARY = (response: I_QueueSummary) => {
+					resolve( response )
+					removeListener();
+				};
+
+			this.eAmi.events.once( _AMI_EVENTS.Q_SUMMARY, onQ_SUMMARY );
 
 			try {
 
 				let response = await this.eAmi.action<I_ActionQueueSummary, I_Response>( options );
 				if(!_isUndefined(response.Response)){
-					if(response.Response.toLowerCase() == "error") reject(response);
+					if(response.Response.toLowerCase() == "error") {
+						reject(response);
+						removeListener();
+					}
 				}
 
 			} catch( error ) {
 				reject( error );
+				removeListener();
 			}
 		} );
 	}
@@ -417,16 +551,27 @@ export class eAmiActions {
 			options.Action = "Status";
 			options.ActionID = new Date().getTime();
 
-			this.eAmi.events.once( _AMI_EVENTS.STATUS, ( response: I_Status ) => resolve( response ) );
+			let removeListener = () => {
+					this.eAmi.events.removeListener( _AMI_EVENTS.STATUS, onSTATUS );
+				},
+				onSTATUS = (response: I_Status) => {
+					resolve( response );
+					removeListener();
+				};
+			this.eAmi.events.once( _AMI_EVENTS.STATUS, onSTATUS );
 
 			try {
 				let response = await this.eAmi.action<I_ActionStatus, I_Response>( options );
 				if(!_isUndefined(response.Response)){
-					if(response.Response.toLowerCase() == "error") reject(response);
+					if(response.Response.toLowerCase() == "error") {
+						reject(response);
+						removeListener();
+					}
 				}
 
 			} catch( error ) {
 				reject( error );
+				removeListener();
 			}
 		} );
 	}

@@ -366,7 +366,7 @@ export class eAmi {
 		} );
 	}
 
-	public action<T, R>( request: T ): Promise<R> {
+	public action<T, R>( request: T): Promise<R> {
 		return new Promise( ( resolve, reject ) => {
 
 			let write: boolean,
