@@ -194,7 +194,6 @@ declare namespace extended_ami {
 		ActionID?: number | string
 	}
 
-
 	//Check the status of one or more queues.
 	export interface I_ActionQueueStatus {
 		Action?: "QueueStatus"
@@ -204,6 +203,8 @@ declare namespace extended_ami {
 		Queue: string
 		//Limit the response to the status of the specified member.
 		Member?: string
+		//Real number of members of the queue (It is necessary in case of an incorrect response from asterisk)
+		MembersCount?: number
 	}
 
 	//Request the manager to send a QueueSummary event.

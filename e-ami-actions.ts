@@ -17,7 +17,6 @@ import {
 	I_ActionStatus,
 	I_Response,
 } from "./interfaces/actions.interface";
-import { _AMI_EVENTS } from "./constants";
 import { I_Status } from "./interfaces/status.interface";
 import { _isNull, _isUndefined } from "./functions";
 import {
@@ -33,15 +32,15 @@ import {
 import { I_DualHangup, I_Hangup, I_HangupRequest } from "./interfaces/hangup.interface";
 import { I_BridgeInfoChannel, I_BridgeListComplete, I_BridgeListItem } from "./interfaces/bridge.interface";
 import { I_CoreShowChannel, I_CoreShowChannelsComplete } from "./interfaces/core-interface";
-import { I_OriginateResponse } from "./interfaces/originate.interface";
-import { removeListener } from "cluster";
 
 export class eAmiActions {
 
 	private eAmi: eAmi;
+	private timeOutAction: number;
 
 	constructor( eAmi: eAmi ) {
 		this.eAmi = eAmi;
+		this.timeOutAction = 5000;
 	}
 
 	public BridgeInfo( options: I_ActionBridgeInfo ): Promise<I_BridgeInfoChannel> {
@@ -51,21 +50,25 @@ export class eAmiActions {
 			options.ActionID = new Date().getTime();
 
 			let removeListener = () => {
-					this.eAmi.events.removeListener(_AMI_EVENTS.BRIDGE_INFO_CHANNEL, onBRIDGE_INFO_CHANNEL );
+					this.eAmi.events.removeListener( AMI_EVENTS.BRIDGE_INFO_CHANNEL, onBRIDGE_INFO_CHANNEL );
 				},
-				onBRIDGE_INFO_CHANNEL = (response: I_BridgeInfoChannel) => {
+				onBRIDGE_INFO_CHANNEL = ( response: I_BridgeInfoChannel ) => {
 					resolve( response );
 					removeListener();
 				};
 
-			this.eAmi.events.once( _AMI_EVENTS.BRIDGE_INFO_CHANNEL, onBRIDGE_INFO_CHANNEL );
+			this.eAmi.events.once( AMI_EVENTS.BRIDGE_INFO_CHANNEL, onBRIDGE_INFO_CHANNEL );
+
+			setTimeout( () => {
+				reject( "Timeout to '" + options.Action + "' action, try again later..." );
+			}, this.timeOutAction );
 
 			try {
 
 				let response = await this.eAmi.action<I_ActionBridgeInfo, I_Response>( options );
-				if(!_isUndefined(response.Response)){
-					if(response.Response.toLowerCase() == "error") {
-						reject(response);
+				if( !_isUndefined( response.Response ) ) {
+					if( response.Response.toLowerCase() == "error" ) {
+						reject( response );
 						removeListener();
 					}
 				}
@@ -89,10 +92,10 @@ export class eAmiActions {
 			let bridgeItemsCount: number = 0,
 				bridgeItems: I_BridgeListItem[] = [],
 				removeListener = () => {
-					this.eAmi.events.removeListener( _AMI_EVENTS.BRIDGE_LIST_COMPLETE, onBRIDGE_LIST_COMPLETE );
-					this.eAmi.events.removeListener( _AMI_EVENTS.BRIDGE_LIST_ITEM, onBRIDGE_LIST_ITEM );
+					this.eAmi.events.removeListener( AMI_EVENTS.BRIDGE_LIST_COMPLETE, onBRIDGE_LIST_COMPLETE );
+					this.eAmi.events.removeListener( AMI_EVENTS.BRIDGE_LIST_ITEM, onBRIDGE_LIST_ITEM );
 				},
-				onBRIDGE_LIST_ITEM = (response: I_BridgeListItem) => {
+				onBRIDGE_LIST_ITEM = ( response: I_BridgeListItem ) => {
 					bridgeItems.push( response );
 
 					if( bridgeItemsCount == bridgeItems.length ) {
@@ -101,7 +104,7 @@ export class eAmiActions {
 					}
 
 				},
-				onBRIDGE_LIST_COMPLETE = (response: I_BridgeListComplete) => {
+				onBRIDGE_LIST_COMPLETE = ( response: I_BridgeListComplete ) => {
 					bridgeItemsCount = response.ListItems;
 
 					if( bridgeItemsCount == bridgeItems.length ) {
@@ -111,15 +114,19 @@ export class eAmiActions {
 				};
 
 
-			this.eAmi.events.once( _AMI_EVENTS.BRIDGE_LIST_COMPLETE, onBRIDGE_LIST_COMPLETE );
-			this.eAmi.events.on( _AMI_EVENTS.BRIDGE_LIST_ITEM, onBRIDGE_LIST_ITEM );
+			this.eAmi.events.once( AMI_EVENTS.BRIDGE_LIST_COMPLETE, onBRIDGE_LIST_COMPLETE );
+			this.eAmi.events.on( AMI_EVENTS.BRIDGE_LIST_ITEM, onBRIDGE_LIST_ITEM );
+
+			setTimeout( () => {
+				reject( "Timeout to '" + options.Action + "' action, try again later..." );
+			}, this.timeOutAction );
 
 			try {
 
 				let response = await this.eAmi.action<I_ActionBridgeList, I_Response>( options );
-				if(!_isUndefined(response.Response)){
-					if(response.Response.toLowerCase() == "error") {
-						reject(response);
+				if( !_isUndefined( response.Response ) ) {
+					if( response.Response.toLowerCase() == "error" ) {
+						reject( response );
 						removeListener();
 					}
 				}
@@ -140,10 +147,10 @@ export class eAmiActions {
 			let channelsCount: number = 0,
 				channels: I_CoreShowChannel[] = [],
 				removeListener = () => {
-					this.eAmi.events.removeListener( _AMI_EVENTS.CORE_SHOW_CHANNEL, onCORE_SHOW_CHANNEL );
-					this.eAmi.events.removeListener( _AMI_EVENTS.CORE_SHOW_CHANNEL_COMPLETE, onCORE_SHOW_CHANNEL_COMPLETE );
+					this.eAmi.events.removeListener( AMI_EVENTS.CORE_SHOW_CHANNEL, onCORE_SHOW_CHANNEL );
+					this.eAmi.events.removeListener( AMI_EVENTS.CORE_SHOW_CHANNEL_COMPLETE, onCORE_SHOW_CHANNEL_COMPLETE );
 				},
-				onCORE_SHOW_CHANNEL = (response: I_CoreShowChannel) => {
+				onCORE_SHOW_CHANNEL = ( response: I_CoreShowChannel ) => {
 
 					channels.push( response );
 
@@ -153,7 +160,7 @@ export class eAmiActions {
 					}
 
 				},
-				onCORE_SHOW_CHANNEL_COMPLETE = (response: I_CoreShowChannelsComplete) => {
+				onCORE_SHOW_CHANNEL_COMPLETE = ( response: I_CoreShowChannelsComplete ) => {
 					channelsCount = response.ListItems;
 
 					if( channels.length == channelsCount ) {
@@ -162,15 +169,19 @@ export class eAmiActions {
 					}
 				};
 
-			this.eAmi.events.once( _AMI_EVENTS.CORE_SHOW_CHANNEL_COMPLETE, onCORE_SHOW_CHANNEL_COMPLETE );
-			this.eAmi.events.on( _AMI_EVENTS.CORE_SHOW_CHANNEL, onCORE_SHOW_CHANNEL );
+			this.eAmi.events.once( AMI_EVENTS.CORE_SHOW_CHANNEL_COMPLETE, onCORE_SHOW_CHANNEL_COMPLETE );
+			this.eAmi.events.on( AMI_EVENTS.CORE_SHOW_CHANNEL, onCORE_SHOW_CHANNEL );
+
+			setTimeout( () => {
+				reject( "Timeout to '" + options.Action + "' action, try again later..." );
+			}, this.timeOutAction );
 
 			try {
 
 				let response = await this.eAmi.action<I_ActionCoreShowChannels, I_Response>( options );
-				if(!_isUndefined(response.Response)){
-					if(response.Response.toLowerCase() == "error") {
-						reject(response);
+				if( !_isUndefined( response.Response ) ) {
+					if( response.Response.toLowerCase() == "error" ) {
+						reject( response );
 						removeListener();
 					}
 				}
@@ -190,29 +201,33 @@ export class eAmiActions {
 
 			let hangup: I_DualHangup = { hangup: null, hangupRequest: null },
 				removeListeners = () => {
-					this.eAmi.events.removeListener( _AMI_EVENTS.HANGUP, onHANGUP );
-					this.eAmi.events.removeListener( _AMI_EVENTS.HANGUP_REQUEST, onHANGUP_REQUEST );
+					this.eAmi.events.removeListener( AMI_EVENTS.HANGUP, onHANGUP );
+					this.eAmi.events.removeListener( AMI_EVENTS.HANGUP_REQUEST, onHANGUP_REQUEST );
 				},
-				onHANGUP = (h: I_Hangup) => {
+				onHANGUP = ( h: I_Hangup ) => {
 					hangup.hangup = h;
 					if( !_isNull( hangup.hangupRequest ) ) resolve( hangup );
 					removeListeners();
 				},
-				onHANGUP_REQUEST = (hr: I_HangupRequest) => {
+				onHANGUP_REQUEST = ( hr: I_HangupRequest ) => {
 					hangup.hangupRequest = hr;
 					if( !_isNull( hangup.hangup ) ) resolve( hangup );
 					removeListeners();
 				};
 
-			this.eAmi.events.once( _AMI_EVENTS.HANGUP, onHANGUP );
-			this.eAmi.events.once( _AMI_EVENTS.HANGUP_REQUEST, onHANGUP_REQUEST );
+			this.eAmi.events.once( AMI_EVENTS.HANGUP, onHANGUP );
+			this.eAmi.events.once( AMI_EVENTS.HANGUP_REQUEST, onHANGUP_REQUEST );
+
+			setTimeout( () => {
+				reject( "Timeout to '" + options.Action + "' action, try again later..." );
+			}, this.timeOutAction );
 
 			try {
 
 				let response = await this.eAmi.action<I_ActionHangup, I_Response>( options );
-				if(!_isUndefined(response.Response)){
-					if(response.Response.toLowerCase() == "error") {
-						reject(response);
+				if( !_isUndefined( response.Response ) ) {
+					if( response.Response.toLowerCase() == "error" ) {
+						reject( response );
 						removeListeners();
 					}
 				}
@@ -231,14 +246,17 @@ export class eAmiActions {
 			options.Action = "Login";
 			options.ActionID = new Date().getTime();
 
+			setTimeout( () => {
+				reject( "Timeout to '" + options.Action + "' action, try again later..." );
+			}, this.timeOutAction );
+
 			try {
 
 				let response = await this.eAmi.action<I_ActionLogin, I_Response>( options );
 
 				if( response.Response == "Success" ) resolve( true );
-				else if(response.Response == "Error") reject( response );
-				else resolve(true);
-
+				else if( response.Response == "Error" ) reject( response );
+				else resolve( true );
 
 			} catch( error ) {
 				console.log( "ERROR LOGIN", error );
@@ -251,6 +269,10 @@ export class eAmiActions {
 	public Logout(): Promise<boolean> {
 		return new Promise( async ( resolve, reject ) => {
 			let actionId = new Date().getTime();
+
+			setTimeout( () => {
+				reject( "Timeout to 'Logoff' action, try again later..." );
+			}, this.timeOutAction );
 
 			try {
 
@@ -281,7 +303,7 @@ export class eAmiActions {
 			let removeListener = () => {
 					this.eAmi.events.removeListener( "Action_" + options.ActionID, onActionID );
 				},
-				onActionID = (response: any) => {
+				onActionID = ( response: any ) => {
 					if( _isUndefined( response.Message ) ) reject( false );
 					if( response.Message.toString().toLowerCase().indexOf( "failed" ) >= 0 ) reject( false );
 					resolve( true );
@@ -292,14 +314,18 @@ export class eAmiActions {
 			this.eAmi.events.once( "Action_" + options.ActionID, onActionID );
 
 			// not working
-			// this.eAmi.events.once(_AMI_EVENTS.ORIGINATE_RESPONSE, (response: I_OriginateResponse) => resolve(response));
+			// this.eAmi.events.once(AMI_EVENTS.ORIGINATE_RESPONSE, (response: I_OriginateResponse) => resolve(response));
+
+			setTimeout( () => {
+				reject( "Timeout to '" + options.Action + "' action, try again later..." );
+			}, this.timeOutAction );
 
 			try {
 
 				let response = await this.eAmi.action<I_ActionOriginate, I_Response>( options );
-				if(!_isUndefined(response.Response)){
-					if(response.Response.toLowerCase() == "error") {
-						reject(response);
+				if( !_isUndefined( response.Response ) ) {
+					if( response.Response.toLowerCase() == "error" ) {
+						reject( response );
 						removeListener();
 					}
 				}
@@ -315,6 +341,10 @@ export class eAmiActions {
 		return new Promise( async ( resolve, reject ) => {
 
 			let actionID = new Date().getTime();
+
+			setTimeout( () => {
+				reject( "Timeout to 'Ping' action, try again later..." );
+			}, this.timeOutAction );
 
 			try {
 
@@ -341,21 +371,25 @@ export class eAmiActions {
 			options.Action = "QueueAdd";
 
 			let removeListener = () => {
-					this.eAmi.events.removeListener( _AMI_EVENTS.Q_MEMBER_ADDED, onQ_MEMBER_ADDED );
+					this.eAmi.events.removeListener( AMI_EVENTS.Q_MEMBER_ADDED, onQ_MEMBER_ADDED );
 				},
-				onQ_MEMBER_ADDED = (response: I_QueueMemberAdded ) => {
-					resolve(response);
+				onQ_MEMBER_ADDED = ( response: I_QueueMemberAdded ) => {
+					resolve( response );
 					removeListener();
 				};
 
-			this.eAmi.events.once( _AMI_EVENTS.Q_MEMBER_ADDED, onQ_MEMBER_ADDED );
+			this.eAmi.events.once( AMI_EVENTS.Q_MEMBER_ADDED, onQ_MEMBER_ADDED );
+
+			setTimeout( () => {
+				reject( "Timeout to '" + options.Action + "' action, try again later..." );
+			}, this.timeOutAction );
 
 			try {
 
 				let response = await this.eAmi.action<I_ActionQueueAdd, I_Response>( options );
-				if(!_isUndefined(response.Response)){
-					if(response.Response.toLowerCase() == "error") {
-						reject(response);
+				if( !_isUndefined( response.Response ) ) {
+					if( response.Response.toLowerCase() == "error" ) {
+						reject( response );
 						removeListener();
 					}
 				}
@@ -374,22 +408,26 @@ export class eAmiActions {
 			options.Action = "QueueRemove";
 
 			let removeListener = () => {
-					this.eAmi.events.removeListener( _AMI_EVENTS.Q_MEMBER_REMOVED, onQ_MEMBER_REMOVED );
+					this.eAmi.events.removeListener( AMI_EVENTS.Q_MEMBER_REMOVED, onQ_MEMBER_REMOVED );
 				},
-				onQ_MEMBER_REMOVED = (response: I_QueueMemberRemoved) => {
-					resolve(response);
+				onQ_MEMBER_REMOVED = ( response: I_QueueMemberRemoved ) => {
+					resolve( response );
 					removeListener();
 				};
 
-			this.eAmi.events.once( _AMI_EVENTS.Q_MEMBER_REMOVED, onQ_MEMBER_REMOVED );
+			this.eAmi.events.once( AMI_EVENTS.Q_MEMBER_REMOVED, onQ_MEMBER_REMOVED );
+
+			setTimeout( () => {
+				reject( "Timeout to '" + options.Action + "' action, try again later..." );
+			}, this.timeOutAction );
 
 			try {
 
 				let response = await this.eAmi.action<I_ActionQueueRemove, I_Response>( options );
-				if(!_isUndefined(response.Response)){
-					if(response.Response.toLowerCase() == "error") {
+				if( !_isUndefined( response.Response ) ) {
+					if( response.Response.toLowerCase() == "error" ) {
 						removeListener();
-						reject(response);
+						reject( response );
 					}
 				}
 
@@ -408,21 +446,25 @@ export class eAmiActions {
 			options.Action = "QueuePenalty";
 
 			let removeListener = () => {
-					this.eAmi.events.removeListener( _AMI_EVENTS.Q_MEMBER_PENALTY, onQ_MEMBER_PENALTY );
+					this.eAmi.events.removeListener( AMI_EVENTS.Q_MEMBER_PENALTY, onQ_MEMBER_PENALTY );
 				},
-				onQ_MEMBER_PENALTY = ( response: I_QueueMemberPenalty) => {
+				onQ_MEMBER_PENALTY = ( response: I_QueueMemberPenalty ) => {
 					resolve( response );
 					removeListener();
 				};
 
-			this.eAmi.events.once( _AMI_EVENTS.Q_MEMBER_PENALTY, onQ_MEMBER_PENALTY );
+			this.eAmi.events.once( AMI_EVENTS.Q_MEMBER_PENALTY, onQ_MEMBER_PENALTY );
+
+			setTimeout( () => {
+				reject( "Timeout to '" + options.Action + "' action, try again later..." );
+			}, this.timeOutAction );
 
 			try {
 
 				let response = await this.eAmi.action<I_ActionQueuePenalty, I_Response>( options );
-				if(!_isUndefined(response.Response)){
-					if(response.Response.toLowerCase() == "error") {
-						reject(response);
+				if( !_isUndefined( response.Response ) ) {
+					if( response.Response.toLowerCase() == "error" ) {
+						reject( response );
 						removeListener();
 					}
 				}
@@ -441,21 +483,25 @@ export class eAmiActions {
 			options.Action = "QueuePause";
 
 			let removeListener = () => {
-					this.eAmi.events.removeListener( _AMI_EVENTS.Q_MEMBER_PAUSE, onQ_MEMBER_PAUSE );
+					this.eAmi.events.removeListener( AMI_EVENTS.Q_MEMBER_PAUSE, onQ_MEMBER_PAUSE );
 				},
-				onQ_MEMBER_PAUSE = (response: I_QueueMemberPause ) => {
+				onQ_MEMBER_PAUSE = ( response: I_QueueMemberPause ) => {
 					resolve( response );
 					removeListener();
 				};
 
-			this.eAmi.events.once( _AMI_EVENTS.Q_MEMBER_PAUSE, onQ_MEMBER_PAUSE );
+			this.eAmi.events.once( AMI_EVENTS.Q_MEMBER_PAUSE, onQ_MEMBER_PAUSE );
+
+			setTimeout( () => {
+				reject( "Timeout to '" + options.Action + "' action, try again later..." );
+			}, this.timeOutAction );
 
 			try {
 
 				let response = await this.eAmi.action<I_ActionQueuePause, I_Response>( options );
-				if(!_isUndefined(response.Response)){
-					if(response.Response.toLowerCase() == "error") {
-						reject(response);
+				if( !_isUndefined( response.Response ) ) {
+					if( response.Response.toLowerCase() == "error" ) {
+						reject( response );
 						removeListener();
 					}
 				}
@@ -476,7 +522,7 @@ export class eAmiActions {
 			let members: I_QueueMember[] = [],
 				countMembers: number = 0,
 				removeListener = () => {
-					this.eAmi.events.removeListener(_AMI_EVENTS.Q_MEMBER, onQ_MEMBER);
+					this.eAmi.events.removeListener( AMI_EVENTS.Q_MEMBER, onQ_MEMBER );
 				},
 				onQ_MEMBER = ( response: I_QueueMember ) => {
 					members.push( response );
@@ -487,25 +533,39 @@ export class eAmiActions {
 					}
 				};
 
-			try{
+			this.eAmi.events.on( AMI_EVENTS.Q_MEMBER, onQ_MEMBER );
+
+			setTimeout( () => {
+				reject( "Timeout to '" + options.Action + "' action, try again later..." );
+				removeListener();
+				this.QueueStatus(options);
+			}, this.timeOutAction );
+
+			try {
 
 				let summary: I_QueueSummary = await this.QueueSummary( { Queue: options.Queue } );
 				countMembers = summary.Available + summary.Callers + summary.LoggedIn;
 
-				this.eAmi.events.on( _AMI_EVENTS.Q_MEMBER, onQ_MEMBER );
+				if( !_isUndefined( options.MembersCount ) ) {
+					countMembers = countMembers == options.MembersCount ? countMembers : options.MembersCount;
+				}
 
-				let response = await this.eAmi.action<I_ActionQueueStatus, I_QueueParams>( options  );
-				if(!_isUndefined(response["Response"])){
-					if(response["Response"].toLowerCase() == "error") {
-						reject(response);
+				if( this.eAmi.debug ) console.log( "Count queue members: available - %s, Callers - %s, LoggedIn - %s. Need count - %s",
+					summary.Available, summary.Callers, summary.LoggedIn, _isUndefined( options.MembersCount ) ? null : options.MembersCount );
+
+				let response = await this.eAmi.action<I_ActionQueueStatus, I_QueueParams>( options );
+				if( !_isUndefined( response[ "Response" ] ) ) {
+					if( response[ "Response" ].toLowerCase() == "error" ) {
+						reject( response );
 						removeListener();
 					}
 				} else {
 					this.eAmi.events.emit( AMI_EVENTS.Q_PARAMS, response );
 					removeListener();
 				}
-			} catch(error) {
-				reject(error);
+
+			} catch( error ) {
+				reject( error );
 				removeListener();
 			}
 		} );
@@ -518,21 +578,25 @@ export class eAmiActions {
 			options.Action = "QueueSummary";
 
 			let removeListener = () => {
-					this.eAmi.events.removeListener( _AMI_EVENTS.Q_SUMMARY, onQ_SUMMARY );
+					this.eAmi.events.removeListener( AMI_EVENTS.Q_SUMMARY, onQ_SUMMARY );
 				},
-				onQ_SUMMARY = (response: I_QueueSummary) => {
-					resolve( response )
+				onQ_SUMMARY = ( response: I_QueueSummary ) => {
+					resolve( response );
 					removeListener();
 				};
 
-			this.eAmi.events.once( _AMI_EVENTS.Q_SUMMARY, onQ_SUMMARY );
+			this.eAmi.events.once( AMI_EVENTS.Q_SUMMARY, onQ_SUMMARY );
+
+			setTimeout( () => {
+				reject( "Timeout to '" + options.Action + "' action, try again later..." );
+			}, this.timeOutAction );
 
 			try {
 
 				let response = await this.eAmi.action<I_ActionQueueSummary, I_Response>( options );
-				if(!_isUndefined(response.Response)){
-					if(response.Response.toLowerCase() == "error") {
-						reject(response);
+				if( !_isUndefined( response.Response ) ) {
+					if( response.Response.toLowerCase() == "error" ) {
+						reject( response );
 						removeListener();
 					}
 				}
@@ -552,19 +616,23 @@ export class eAmiActions {
 			options.ActionID = new Date().getTime();
 
 			let removeListener = () => {
-					this.eAmi.events.removeListener( _AMI_EVENTS.STATUS, onSTATUS );
+					this.eAmi.events.removeListener( AMI_EVENTS.STATUS, onSTATUS );
 				},
-				onSTATUS = (response: I_Status) => {
+				onSTATUS = ( response: I_Status ) => {
 					resolve( response );
 					removeListener();
 				};
-			this.eAmi.events.once( _AMI_EVENTS.STATUS, onSTATUS );
+			this.eAmi.events.once( AMI_EVENTS.STATUS, onSTATUS );
+
+			setTimeout( () => {
+				reject( "Timeout to '" + options.Action + "' action, try again later..." );
+			}, this.timeOutAction );
 
 			try {
 				let response = await this.eAmi.action<I_ActionStatus, I_Response>( options );
-				if(!_isUndefined(response.Response)){
-					if(response.Response.toLowerCase() == "error") {
-						reject(response);
+				if( !_isUndefined( response.Response ) ) {
+					if( response.Response.toLowerCase() == "error" ) {
+						reject( response );
 						removeListener();
 					}
 				}
